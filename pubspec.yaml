@@ -61,10 +61,15 @@ flutter:
   
   assets:
     - assets/facebook_morado.svg
+    - assets/facebook_blanco.svg
     - assets/google_morado.svg
+    - assets/google_blanco.svg
     - assets/apple_morado.svg
+    - assets/apple_blanco.svg
     - assets/google-brands-solid.svg
-    - assets/facebook_m.png
+    - assets/login.png
+    - assets/back_hand.png
+    
 
   # To add assets to your application, add an assets section, like this:
   # assets:
