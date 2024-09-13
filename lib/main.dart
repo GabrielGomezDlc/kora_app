@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:kora_app/ui/iam/login.dart';
+//import 'package:kora_app/ui/iam/login.dart';
+import 'package:kora_app/ui/personalized_techniques/musictherapy.dart';
+//import 'package:kora_app/ui/questionary/stai.dart';
+//import 'package:kora_app/ui/questionary/stai.dart';
 
 void main() {
   runApp(const MyApp());
@@ -14,10 +17,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
+        useMaterial3: false,
       ),
-      home: const Login(),
+      home: const Musictherapy(),
     );
   }
 }
