@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 //import 'package:kora_app/ui/iam/login.dart';
 import 'package:kora_app/ui/personalized_techniques/musictherapy.dart';
+import 'package:kora_app/ui/relax_recommendations/relax_reco.dart';
 //import 'package:kora_app/ui/questionary/stai.dart';
 //import 'package:kora_app/ui/questionary/stai.dart';
 
@@ -20,7 +21,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
         useMaterial3: false,
       ),
-      home: const Musictherapy(),
+      home: RelaxationSessionView(),
     );
   }
 }
