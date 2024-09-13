@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:kora_app/ui/questionary/stai.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -9,16 +10,14 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-
   Color facebookButtonColor = Colors.white;
   Color googleButtonColor = Colors.white;
   Color appleButtonColor = Colors.white;
   Color textColor = Color(0xFF241152); // Color del texto e imagen normal
-  Color backgroundColor = Color(0xFF241152); 
-   Color borderColor = Color(0xFF241152); 
- 
+  Color backgroundColor = Color(0xFF241152);
+  Color borderColor = Color(0xFF241152);
 
-String selectedButton = ''; // Estado para el botón seleccionado
+  String selectedButton = ''; // Estado para el botón seleccionado
 
   void onButtonPressed(String button) {
     setState(() {
@@ -39,8 +38,8 @@ String selectedButton = ''; // Estado para el botón seleccionado
         selectedButton = 'apple'; // Guardar el botón seleccionado
       }
     });
-}
-  
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -68,7 +67,7 @@ String selectedButton = ''; // Estado para el botón seleccionado
             ),
             const SizedBox(height: 16),
             Padding(
-              padding:  const EdgeInsets.symmetric(horizontal: 16.0),
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Row(
                 children: [
                   const Text(
@@ -111,7 +110,7 @@ String selectedButton = ''; // Estado para el botón seleccionado
                   Expanded(
                     child: Divider(
                       color: Colors.white,
-                      thickness: 2,
+                      thickness: 1,
                     ),
                   ),
                   Padding(
@@ -144,9 +143,15 @@ String selectedButton = ''; // Estado para el botón seleccionado
                     FilledButton.icon(
                       onPressed: () {
                         onButtonPressed('facebook');
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  Stai()), // Cambia 'STAI' al nombre de tu clase
+                        );
                       },
                       icon: SvgPicture.asset(
-                        facebookButtonColor == backgroundColor
+                        googleButtonColor == backgroundColor
                             ? 'assets/facebook_blanco.svg' // Cambia la imagen a blanco
                             : 'assets/facebook_morado.svg', // Imagen normal
                         height: 20,
@@ -155,13 +160,14 @@ String selectedButton = ''; // Estado para el botón seleccionado
                         'Facebook',
                         style: TextStyle(
                           color: facebookButtonColor == backgroundColor
-                              ? Colors.white // Cambia el color del texto a blanco
+                              ? Colors
+                                  .white // Cambia el color del texto a blanco
                               : textColor, // Color normal
                           fontWeight: FontWeight.bold,
                           fontSize: 18,
                         ),
                       ),
-                      style: OutlinedButton.styleFrom(
+                      style: FilledButton.styleFrom(
                         backgroundColor: facebookButtonColor,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
@@ -176,7 +182,7 @@ String selectedButton = ''; // Estado para el botón seleccionado
                       },
                       icon: SvgPicture.asset(
                         googleButtonColor == backgroundColor
-                            ? 'assets/google_blanco.svg'  // Cambia la imagen a blanco
+                            ? 'assets/google_blanco.svg' // Cambia la imagen a blanco
                             : 'assets/google_morado.svg', // Imagen normal
                         height: 20,
                       ),
@@ -184,7 +190,8 @@ String selectedButton = ''; // Estado para el botón seleccionado
                         'Google',
                         style: TextStyle(
                           color: googleButtonColor == backgroundColor
-                              ? Colors.white // Cambia el color del texto a blanco
+                              ? Colors
+                                  .white // Cambia el color del texto a blanco
                               : textColor, // Color normal
                           fontWeight: FontWeight.bold,
                           fontSize: 18,
@@ -213,7 +220,8 @@ String selectedButton = ''; // Estado para el botón seleccionado
                         'Apple ID',
                         style: TextStyle(
                           color: appleButtonColor == backgroundColor
-                              ? Colors.white // Cambia el color del texto a blanco
+                              ? Colors
+                                  .white // Cambia el color del texto a blanco
                               : textColor, // Color normal
                           fontWeight: FontWeight.bold,
                           fontSize: 18,

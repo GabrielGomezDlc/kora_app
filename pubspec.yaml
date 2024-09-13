@@ -69,6 +69,11 @@ flutter:
     - assets/google-brands-solid.svg
     - assets/login.png
     - assets/back_hand.png
+    - lib/data/questions.json
+    - assets/music.png
+    - assets/favorite.svg
+    - assets/play.svg
+    - assets/download.svg
     
 
   # To add assets to your application, add an assets section, like this:

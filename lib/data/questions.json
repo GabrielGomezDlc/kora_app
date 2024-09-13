@@ -1,0 +1,23 @@
+[
+    { "question": "1. Me siento calmado", "options": ["Nada", "Algo", "Bastante", "Mucho"] },
+    { "question": "2. Me siento seguro", "options": ["Nada", "Algo", "Bastante", "Mucho"] },
+    { "question": "3. Estoy tenso", "options": ["Nada", "Algo", "Bastante", "Mucho"] },
+    { "question": "4. Estoy contrariado", "options": ["Nada", "Algo", "Bastante", "Mucho"] },
+    { "question": "5. Me siento cómodo (estoy a gusto)", "options": ["Nada", "Algo", "Bastante", "Mucho"] },
+    { "question": "6. Me siento alterado", "options": ["Nada", "Algo", "Bastante", "Mucho"] },
+    { "question": "7. Estoy preocupado ahora por posibles desgracias futuras", "options": ["Nada", "Algo", "Bastante", "Mucho"] },
+    { "question": "8. Me siento descansado", "options": ["Nada", "Algo", "Bastante", "Mucho"] },
+    { "question": "9. Me siento angustiado", "options": ["Nada", "Algo", "Bastante", "Mucho"] },
+    { "question": "10. Estoy confortable", "options": ["Nada", "Algo", "Bastante", "Mucho"] },
+    { "question": "11. Tengo confianza en mi mismo", "options": ["Nada", "Algo", "Bastante", "Mucho"] },
+    { "question": "12. Me siento nervioso", "options": ["Nada", "Algo", "Bastante", "Mucho"] },
+    { "question": "13. Estoy desasosegado", "options": ["Nada", "Algo", "Bastante", "Mucho"] },
+    { "question": "14. Me siento muy atado (como oprimido)", "options": ["Nada", "Algo", "Bastante", "Mucho"] },
+    { "question": "15. Estoy relajado", "options": ["Nada", "Algo", "Bastante", "Mucho"] },
+    { "question": "16. Me siento satisfecho", "options": ["Nada", "Algo", "Bastante", "Mucho"] },
+    { "question": "17. Estoy preocupado", "options": ["Nada", "Algo", "Bastante", "Mucho"] },
+    { "question": "18. Estoy tensoMe siento aturdido y sobreexcitado", "options": ["Nada", "Algo", "Bastante", "Mucho"] },
+    { "question": "19. Me siento alegre", "options": ["Nada", "Algo", "Bastante", "Mucho"] },
+    { "question": "20. En este momento me siento bien", "options": ["Nada", "Algo", "Bastante", "Mucho"] }
+
+  ]
