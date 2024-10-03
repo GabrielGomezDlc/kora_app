@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:kora_app/ui/questionary/stai.dart';
+import 'package:kora_app/ui/home/home.dart';
+
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -13,29 +16,79 @@ class _LoginState extends State<Login> {
   Color facebookButtonColor = Colors.white;
   Color googleButtonColor = Colors.white;
   Color appleButtonColor = Colors.white;
-  Color textColor = Color(0xFF241152); // Color del texto e imagen normal
-  Color backgroundColor = Color(0xFF241152);
-  Color borderColor = Color(0xFF241152);
+  Color textColor = const Color(0xFF241152);
+  Color backgroundColor = const Color(0xFF241152);
+  bool isSigningIn = false; // Estado para mostrar progreso al iniciar sesión
 
-  String selectedButton = ''; // Estado para el botón seleccionado
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
+
+  @override
+  void initState() {
+    super.initState();
+    _signOut(); // Cerrar sesión al iniciar la aplicación
+
+    
+  }
+
+  Future<void> _signInWithGoogle() async {
+    setState(() {
+      isSigningIn = true; // Deshabilitar el botón cuando se presiona
+    });
+
+    try {
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+
+      if (googleUser == null) {
+        // El usuario canceló la solicitud de inicio de sesión
+        print('Inicio de sesión cancelado');
+        return;
+      }
+
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      await _auth.signInWithCredential(credential);
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const Home()),
+      );
+    } catch (e) {
+      print('Error al iniciar sesión con Google: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al iniciar sesión: $e')),
+      );
+    } finally {
+      setState(() {
+        isSigningIn = false; // Rehabilitar el botón después de la acción
+      });
+    }
+  }
+
+  Future<void> _signOut() async {
+    await _auth.signOut();
+    await _googleSignIn.signOut(); // Cerrar sesión de Google también
+  }
 
   void onButtonPressed(String button) {
     setState(() {
-      // Restablecer todos los colores a blanco
       facebookButtonColor = Colors.white;
       googleButtonColor = Colors.white;
       appleButtonColor = Colors.white;
 
-      // Cambiar el color del botón seleccionado
       if (button == 'facebook') {
         facebookButtonColor = backgroundColor;
-        selectedButton = 'facebook'; // Guardar el botón seleccionado
+        // Aquí puedes agregar la lógica para Facebook
       } else if (button == 'google') {
         googleButtonColor = backgroundColor;
-        selectedButton = 'google'; // Guardar el botón seleccionado
+        _signInWithGoogle(); // Iniciar sesión con Google
       } else if (button == 'apple') {
         appleButtonColor = backgroundColor;
-        selectedButton = 'apple'; // Guardar el botón seleccionado
+        // Aquí puedes agregar la lógica para Apple ID
       }
     });
   }
@@ -49,8 +102,8 @@ class _LoginState extends State<Login> {
             begin: Alignment.center,
             end: Alignment.bottomCenter,
             colors: [
-              Color(0xFF7654E7), // Color superior
-              Color(0xFF241152), // Color inferior
+              Color(0xFF7654E7),
+              Color(0xFF241152),
             ],
           ),
         ),
@@ -143,26 +196,20 @@ class _LoginState extends State<Login> {
                     FilledButton.icon(
                       onPressed: () {
                         onButtonPressed('facebook');
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  Stai()), // Cambia 'STAI' al nombre de tu clase
-                        );
+                        // Aquí puedes agregar la lógica para Facebook
                       },
                       icon: SvgPicture.asset(
-                        googleButtonColor == backgroundColor
-                            ? 'assets/facebook_blanco.svg' // Cambia la imagen a blanco
-                            : 'assets/facebook_morado.svg', // Imagen normal
+                        facebookButtonColor == backgroundColor
+                            ? 'assets/facebook_blanco.svg'
+                            : 'assets/facebook_morado.svg',
                         height: 20,
                       ),
                       label: Text(
                         'Facebook',
                         style: TextStyle(
                           color: facebookButtonColor == backgroundColor
-                              ? Colors
-                                  .white // Cambia el color del texto a blanco
-                              : textColor, // Color normal
+                              ? Colors.white
+                              : textColor,
                           fontWeight: FontWeight.bold,
                           fontSize: 18,
                         ),
@@ -177,22 +224,19 @@ class _LoginState extends State<Login> {
                     ),
                     const SizedBox(height: 10),
                     FilledButton.icon(
-                      onPressed: () {
-                        onButtonPressed('google');
-                      },
+                      onPressed: () => onButtonPressed('google'),
                       icon: SvgPicture.asset(
                         googleButtonColor == backgroundColor
-                            ? 'assets/google_blanco.svg' // Cambia la imagen a blanco
-                            : 'assets/google_morado.svg', // Imagen normal
+                            ? 'assets/google_blanco.svg'
+                            : 'assets/google_morado.svg',
                         height: 20,
                       ),
                       label: Text(
-                        'Google',
+                        isSigningIn ? 'Iniciando sesión...' : 'Google',
                         style: TextStyle(
                           color: googleButtonColor == backgroundColor
-                              ? Colors
-                                  .white // Cambia el color del texto a blanco
-                              : textColor, // Color normal
+                              ? Colors.white
+                              : textColor,
                           fontWeight: FontWeight.bold,
                           fontSize: 18,
                         ),
@@ -209,20 +253,20 @@ class _LoginState extends State<Login> {
                     FilledButton.icon(
                       onPressed: () {
                         onButtonPressed('apple');
+                        // Aquí puedes agregar la lógica para Apple ID
                       },
                       icon: SvgPicture.asset(
                         appleButtonColor == backgroundColor
-                            ? 'assets/apple_blanco.svg' // Cambia la imagen a blanco
-                            : 'assets/apple_morado.svg', // Imagen normal
+                            ? 'assets/apple_blanco.svg'
+                            : 'assets/apple_morado.svg',
                         height: 20,
                       ),
                       label: Text(
                         'Apple ID',
                         style: TextStyle(
                           color: appleButtonColor == backgroundColor
-                              ? Colors
-                                  .white // Cambia el color del texto a blanco
-                              : textColor, // Color normal
+                              ? Colors.white
+                              : textColor,
                           fontWeight: FontWeight.bold,
                           fontSize: 18,
                         ),
@@ -245,3 +289,4 @@ class _LoginState extends State<Login> {
     );
   }
 }
+
