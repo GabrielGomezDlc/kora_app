@@ -5,10 +5,11 @@ import 'package:kora_app/data/model/recommended_technique.dart';
 
 class HttpHelper {
   final String urlBase = 'http://192.168.18.19:5000'; // Base URL de la API Flask
+  //final String urlBase = 'https://relaksapi-production.up.railway.app'; // Base URL de la API Flask
 
   // Método para enviar los datos biométricos y recibir la predicción
   Future<RecommendedTechnique> getPrediction(BiometricData data) async {
-    const String endpoint = '/predict';
+    const String endpoint = '/api/v1/predict';
     final String url = '$urlBase$endpoint';
 
     try {
