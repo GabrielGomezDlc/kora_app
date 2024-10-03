@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <!--<string name="default_web_client_id">YOUR_WEB_CLIENT_ID</string>
+    <string name="firebase_database_url">https://your-database-url.firebaseio.com</string>
+    <string name="google_api_key">YOUR_API_KEY</string>
+    <string name="google_app_id">YOUR_APP_ID</string>-->
+
+
     <!-- Theme applied to the Android Window while the process is starting when the OS's Dark Mode setting is off -->
     <style name="LaunchTheme" parent="@android:style/Theme.Light.NoTitleBar">
         <!-- Show a splash screen on the activity. Automatically removed when
