@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:kora_app/data/model/biometric_data.dart';
-import 'package:kora_app/data/remote/RelaksAPI/relaks_http_helper.dart'; // Paquete para un spinner de carga
+import 'package:kora_app/data/remote/RelaksAPI/relaks_http_helper.dart';
+import 'package:kora_app/ui/home/home.dart';
+import 'package:kora_app/ui/personalized_techniques/musictherapy.dart';
+import 'package:kora_app/ui/questionary/instructions.dart'; // Paquete para un spinner de carga
 
 class RelaxationSessionView extends StatefulWidget {
   @override
@@ -108,12 +111,7 @@ class _RelaxationSessionViewState extends State<RelaxationSessionView>
 
     // Crear una instancia de BiometricData con los valores
     final biometricData = BiometricData(
-      heartRate: 80,
-      bloodOxigen: 98,
-      sleepMinutes: 480,
-      staiScore: 30,
-      techniquePreference: 1,
-    );
+        heartRate: 80, bloodOxigen: 98, sleepMinutes: 480, staiScore: 30);
 
     try {
       // Realizar la predicción
@@ -127,13 +125,19 @@ class _RelaxationSessionViewState extends State<RelaxationSessionView>
 
   // Función para navegar a la siguiente vista con la animación personalizada
   void navigateToNextView() {
-    Navigator.of(context).push(_createRoute());
+    // Navigator.of(context).push(_createRoute());
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const Instructions()),
+    );
   }
 
   // Creación de la ruta personalizada con la transición hacia arriba
   Route _createRoute() {
     return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => NextView(recommendedTechniqueId: this.recommendedTechniqueId,),
+      pageBuilder: (context, animation, secondaryAnimation) => NextView(
+        recommendedTechniqueId: this.recommendedTechniqueId,
+      ),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         const begin = Offset(0.0, 1.0); // Comienza desde abajo
         const end = Offset(0.0, 0.0); // Finaliza en la posición original
@@ -193,10 +197,15 @@ class _RelaxationSessionViewState extends State<RelaxationSessionView>
                     .infinity, // Hace que el botón ocupe todo el ancho posible
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.pop(context);
+                   Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              const Home()), // Reemplaza con tu vista de destino
+                    );
                   },
                   style: ElevatedButton.styleFrom(
-                    primary: const Color.fromARGB(
+                    backgroundColor: const Color.fromARGB(
                         255, 41, 27, 73), // Fondo transparente
                     side: const BorderSide(
                         color: Color(0xFF9575CD),
@@ -224,10 +233,10 @@ class _RelaxationSessionViewState extends State<RelaxationSessionView>
                     .infinity, // Hace que el botón ocupe todo el ancho posible
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.pop(context);
+                    
                   },
                   style: ElevatedButton.styleFrom(
-                    primary: const Color.fromARGB(
+                    backgroundColor: const Color.fromARGB(
                         255, 41, 27, 73), // Fondo transparente
                     side: const BorderSide(
                         color: Color(0xFF9575CD),
@@ -367,7 +376,7 @@ class _RelaxationSessionViewState extends State<RelaxationSessionView>
                                             color: Color(0xFF9575CD), size: 30),
                                     const SizedBox(width: 10),
                                     const Text(
-                                      'Generando recomendaciones',
+                                      'Almacenando datos',
                                       style: TextStyle(
                                         fontSize: 20.0,
                                         color: Colors.white,
@@ -465,7 +474,6 @@ class AnimatedIconWithBorder extends StatelessWidget {
     );
   }
 }
-
 
 class NextView extends StatelessWidget {
   final int recommendedTechniqueId; // Campo para recibir la técnica recomendada

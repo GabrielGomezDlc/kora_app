@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:kora_app/ui/home/home.dart';
 
 class Musictherapy extends StatefulWidget {
   const Musictherapy({super.key});
@@ -61,7 +62,10 @@ class _MusictherapyState extends State<Musictherapy> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Color(0xFF4D24AF)),
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const Home()),
+      );
           },
         ),
         title: const Center(

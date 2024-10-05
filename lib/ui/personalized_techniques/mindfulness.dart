@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:kora_app/ui/home/home.dart';
 
 class Mindfulness extends StatefulWidget {
   const Mindfulness({super.key});
@@ -31,7 +32,8 @@ class _MindfulnessState extends State<Mindfulness> {
 
   // Función para reproducir o pausar audio
   void handlePlayPause(int cardIndex, String audioPath) async {
-    if (selectedCardIndex == cardIndex && (isPlaying1 || isPlaying2 || isPlaying3)) {
+    if (selectedCardIndex == cardIndex &&
+        (isPlaying1 || isPlaying2 || isPlaying3)) {
       // Pausar si se está reproduciendo la misma tarjeta
       await audioPlayer.pause();
       setState(() {
@@ -53,15 +55,17 @@ class _MindfulnessState extends State<Mindfulness> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
-   return Scaffold(
+    return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Color(0xFF4D24AF)),
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const Home()),
+            );
           },
         ),
         title: const Center(
@@ -143,10 +147,10 @@ class _MindfulnessState extends State<Mindfulness> {
         ),
       ),
     );
-
   }
-    // Widget para construir las cards
-   // Widget para construir las cards
+
+  // Widget para construir las cards
+  // Widget para construir las cards
   Widget buildCard(
     BuildContext context,
     String title,

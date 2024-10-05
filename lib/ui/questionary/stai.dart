@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:kora_app/ui/personalized_techniques/musictherapy.dart';
+import 'package:kora_app/ui/relax_recommendations/creating_reco.dart';
 
 class Stai extends StatefulWidget {
   const Stai({super.key});
@@ -53,11 +55,19 @@ class _StaiState extends State<Stai> {
   // Pasar a las siguientes 2 preguntas
   void nextQuestions() {
     setState(() {
+    if (currentQuestionIndex + 2 >= totalQuestions) {
+      // Si estamos al final del cuestionario, ir a otra vista
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const CustomLoadingScreen(), // Reemplaza por tu vista final
+        ),
+      );
+    } else {
+      // Si aún quedan preguntas, avanza
       currentQuestionIndex += 2;
-      if (currentQuestionIndex >= totalQuestions) {
-        currentQuestionIndex = totalQuestions - 1;
-      }
-    });
+    }
+  });
   }
 
   // Progreso basado en las preguntas respondidas

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:kora_app/ui/biometric_recollection/sleep_hours.dart';
 import 'package:kora_app/ui/home/home.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -55,7 +56,7 @@ class _LoginState extends State<Login> {
       await _auth.signInWithCredential(credential);
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const Home()),
+        MaterialPageRoute(builder: (context) => const SleepTrackingView()),
       );
     } catch (e) {
       print('Error al iniciar sesión con Google: $e');
