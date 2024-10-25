@@ -20,7 +20,7 @@ class _RelaxationSessionViewState extends State<RelaxationSessionView>
   late Animation<Offset> _slideAnimation;
   late Animation<Offset> _slideRecommendationsAnimation;
   bool wearableConnected =
-      false; // Cambia a 'true' si el smartwatch está conectado
+      true; // Cambia a 'true' si el smartwatch está conectado
   bool showBiometricData =
       false; // Controla la visualización de los datos biométricos
   bool dataCollected = false; // Controla cuándo mostrar "Datos recolectados"

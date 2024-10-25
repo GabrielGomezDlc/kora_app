@@ -147,7 +147,7 @@ class _HomeViewState extends State<HomeView> {
           padding: const EdgeInsets.only(
               top: 20.0), // Padding solo en la parte superior
           child: Text(
-            'Hola Maria,',
+            'Hola Cris,',
             style: TextStyle(color: Colors.white, fontSize: 32),
           ),
         ),

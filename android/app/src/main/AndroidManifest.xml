@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools" >
 
     <!-- Permisos de la aplicación -->
     <uses-permission android:name="android.permission.INTERNET"/>
@@ -7,7 +7,6 @@
 
     <application
         android:label="kora_app"
-        android:name="${applicationName}" 
         android:icon="@mipmap/ic_launcher">
         
         <meta-data
@@ -20,7 +19,18 @@
             android:excludeFromRecents="true"
             tools:replace="android:exported"
             android:exported="true" />
+<activity
+    android:name="com.linusu.flutter_web_auth.CallbackActivity"
+    android:exported="true">
+    <intent-filter>
+        <action android:name="android.intent.action.VIEW" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.BROWSABLE" />
+        <data android:scheme="msal547f0ad9-8ffa-4d32-8920-77448e13464a" /> <!-- Esquema personalizado -->
+    </intent-filter>
+</activity>
 
+        
         
         <activity
             android:name=".MainActivity"
@@ -36,7 +46,9 @@
             <meta-data
                 android:name="io.flutter.embedding.android.NormalTheme"
                 android:resource="@style/NormalTheme"/>
-              
+              <!-- Filtro de intención para manejar el esquema de URL personalizado de Microsoft -->
+
+    
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>

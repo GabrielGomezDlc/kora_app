@@ -52,6 +52,10 @@ android {
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
       
+       // Elimina la referencia a applicationName ya que no es necesario
+    manifestPlaceholders = [
+        appAuthRedirectScheme: "com.example.kora_app"
+    ]
     }
 
     buildTypes {
@@ -70,4 +74,5 @@ flutter {
 dependencies {
     implementation platform('com.google.firebase:firebase-bom:33.3.0')
     implementation 'com.google.firebase:firebase-auth'
+    
 }
