@@ -48,7 +48,9 @@ dependencies:
   flutter_appauth: ^7.0.1
   flutter_web_auth: ^0.5.0
   aad_oauth: ^1.0.1
-
+  health: ^11.0.0
+  permission_handler: ^11.3.1
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:health/health.dart';
 import 'package:kora_app/data/model/biometric_data.dart';
 import 'package:kora_app/data/remote/RelaksAPI/relaks_http_helper.dart';
 import 'package:kora_app/ui/home/home.dart';
@@ -20,146 +19,92 @@ class _RelaxationSessionViewState extends State<RelaxationSessionView>
   late Animation<double> _fadeAnimationBiometric;
   late Animation<Offset> _slideAnimation;
   late Animation<Offset> _slideRecommendationsAnimation;
-  
-  bool wearableConnected = true;
-  bool showBiometricData = false;
-  bool dataCollected = false;
-  bool recommendationsGenerated = false;
+  bool wearableConnected =
+      true; // Cambia a 'true' si el smartwatch está conectado
+  bool showBiometricData =
+      false; // Controla la visualización de los datos biométricos
+  bool dataCollected = false; // Controla cuándo mostrar "Datos recolectados"
+  bool recommendationsGenerated =
+      false; // Controla cuándo mostrar las recomendaciones
   int recommendedTechniqueId = 0;
-
-  // Variables para almacenar los valores de los datos recolectados
-  int bloodOxygen = 0;
-  int sleepMinutes = 0;
-  int heartRate = 0;
-
-  List<HealthDataPoint> _healthDataList = [];
-  final List<HealthDataType> types = [
-    HealthDataType.BLOOD_OXYGEN,
-    HealthDataType.SLEEP_SESSION,
-    HealthDataType.HEART_RATE,
-  ];
-  final List<RecordingMethod> recordingMethodsToFilter = [];
-
   @override
   void initState() {
     super.initState();
 
+    // Controlador para animación de deslizamiento
     _slideController = AnimationController(
       duration: const Duration(seconds: 1),
       vsync: this,
     );
 
+    // Controlador de animación de fade
     _controller = AnimationController(
       duration: const Duration(seconds: 1),
       vsync: this,
     );
 
+    // Configura la animación de fade para el primer texto
     _fadeAnimation = Tween(begin: 0.0, end: 1.0).animate(_controller);
+
+    // Configura la animación de fade para los datos biométricos
     _fadeAnimationBiometric = Tween(begin: 0.0, end: 1.0).animate(_controller);
 
+    // Configura la animación de deslizamiento desde abajo
     _slideAnimation =
         Tween<Offset>(begin: const Offset(0, 1), end: const Offset(0, 0))
             .animate(
       CurvedAnimation(parent: _slideController, curve: Curves.easeInOut),
     );
 
+    // Configura la animación de deslizamiento para las recomendaciones
     _slideRecommendationsAnimation =
         Tween<Offset>(begin: const Offset(0, 1), end: const Offset(0, 0))
             .animate(
       CurvedAnimation(parent: _slideController, curve: Curves.easeInOut),
     );
 
+    // Inicia la animación del primer texto
     _controller.forward();
 
+    // Si el smartwatch está conectado, mostrar "Recolectando datos biométricos..." después de un tiempo
+    // Si el smartwatch no está conectado, muestra el diálogo
     if (!wearableConnected) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         showWearableDialog(context);
       });
     } else {
-      fetchData();
-    }
-  }
-
-  /// Función para obtener datos de salud desde el plugin Health Connect
-Future<void> fetchData() async {
-  final now = DateTime.now();
-  final yesterday = now.subtract(Duration(hours: 24));
-
-  _healthDataList.clear();
-
-  try {
-    // Obtiene los datos de salud para los tipos especificados
-    List<HealthDataPoint> healthData = await Health().getHealthDataFromTypes(
-      types: types,
-      startTime: yesterday,
-      endTime: now,
-      recordingMethodsToFilter: recordingMethodsToFilter,
-    );
-
-    // Ordena los datos por fecha (del más reciente al más antiguo)
-    healthData.sort((a, b) => b.dateTo.compareTo(a.dateTo));
-
-    // Variables para almacenar el último dato de cada tipo
-    int? latestBloodOxygen;
-    int? latestSleepMinutes;
-    int? latestHeartRate;
-
-    // Filtra y extrae el dato más reciente de cada tipo
-    for (var data in healthData) {
-      if (data.value is NumericHealthValue) {
-        final numericValue = (data.value as NumericHealthValue).numericValue;
-
-        if (data.type == HealthDataType.BLOOD_OXYGEN && latestBloodOxygen == null) {
-          latestBloodOxygen = numericValue.toInt();
-        } else if (data.type == HealthDataType.SLEEP_SESSION && latestSleepMinutes == null) {
-          latestSleepMinutes = numericValue.toInt();
-        } else if (data.type == HealthDataType.HEART_RATE && latestHeartRate == null) {
-          latestHeartRate = numericValue.toInt();
-        }
-
-        // Si ya se han encontrado los más recientes de todos los tipos, salir del bucle
-        if (latestBloodOxygen != null && latestSleepMinutes != null && latestHeartRate != null) {
-          break;
-        }
-      }
-    }
-
-    // Actualiza las variables globales con los valores más recientes
-    setState(() {
-      bloodOxygen = latestBloodOxygen ?? 0;
-      sleepMinutes = latestSleepMinutes ?? 0;
-      heartRate = latestHeartRate ?? 0;
-      showBiometricData = true;
-    });
-
-    _controller.reset();
-    _controller.forward();
-
-    // Iniciar animación de deslizamiento para los datos recolectados
-    Future.delayed(const Duration(seconds: 2), () {
-      setState(() {
-        dataCollected = true;
-      });
-
-      _slideController.forward();
-
-      // Iniciar predicción de técnicas
-      Future.delayed(const Duration(seconds: 2), () {
+      Future.delayed(const Duration(seconds: 3), () {
         setState(() {
-          recommendationsGenerated = true;
-          getPrediccion();
+          showBiometricData = true;
         });
 
-        Future.delayed(const Duration(seconds: 2), () {
-          navigateToNextView();
+        _controller.reset();
+        _controller.forward();
+
+        // Iniciar deslizamiento después de que se muestren los íconos
+        Future.delayed(const Duration(seconds: 4), () {
+          setState(() {
+            dataCollected = true;
+          });
+
+          _slideController.forward();
+
+          // Cambiar spinner a check
+          Future.delayed(const Duration(seconds: 2), () {
+            setState(() {
+              recommendationsGenerated = true;
+              getPrediccion();
+            });
+
+            // Después de todo, hacer la transición a la siguiente vista
+            Future.delayed(const Duration(seconds: 2), () {
+              navigateToNextView();
+            });
+          });
         });
       });
-    });
-  } catch (e) {
-    print('Error al obtener datos: $e');
+    }
   }
-}
-
 
   void getPrediccion() async {
     final httpHelper = HttpHelper();
@@ -186,8 +131,32 @@ Future<void> fetchData() async {
       MaterialPageRoute(builder: (context) => const Instructions()),
     );
   }
+
+  // Creación de la ruta personalizada con la transición hacia arriba
+  Route _createRoute() {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => NextView(
+        recommendedTechniqueId: this.recommendedTechniqueId,
+      ),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        const begin = Offset(0.0, 1.0); // Comienza desde abajo
+        const end = Offset(0.0, 0.0); // Finaliza en la posición original
+        const curve = Curves.easeInOut;
+
+        var tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        var offsetAnimation = animation.drive(tween);
+
+        return SlideTransition(
+          position: offsetAnimation,
+          child: child,
+        );
+      },
+    );
+  }
+
   // Función para mostrar el diálogo si no hay un smartwatch conectado
-void showWearableDialog(BuildContext context) {
+  void showWearableDialog(BuildContext context) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -297,6 +266,13 @@ void showWearableDialog(BuildContext context) {
   }
 
   @override
+  void dispose() {
+    _controller.dispose();
+    _slideController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
@@ -304,39 +280,126 @@ void showWearableDialog(BuildContext context) {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Color(0xFF9575CD), Color(0xFF512DA8)],
+            colors: [
+              Color(0xFF9575CD), // Morado más claro
+              Color(0xFF512DA8), // Morado más oscuro en las esquinas
+            ],
+            stops: [0.0, 1.0],
           ),
         ),
         child: Center(
           child: showBiometricData
               ? FadeTransition(
-                  opacity: _fadeAnimationBiometric,
+                  opacity:
+                      _fadeAnimationBiometric, // Animación para los datos biométricos
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(
-                        'Datos recolectados\n'
-                        'BLOOD_OXYGEN: $bloodOxygen%\n'
-                        'SLEEP_SESSION: $sleepMinutes min\n'
-                        'HEART_RATE: $heartRate bpm',
-                        style: const TextStyle(
-                          fontSize: 20.0,
+                      const Text(
+                        'Recolectando',
+                        style: TextStyle(
+                          fontSize: 34.0, // Letras grandes
+                          fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
-                        textAlign: TextAlign.center,
                       ),
+                      const SizedBox(height: 20),
+                      const Text(
+                        'datos biométricos...',
+                        style: TextStyle(
+                          fontSize: 34.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 40),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          AnimatedIconWithBorder(
+                            icon: Icons.favorite,
+                            fillColor: const Color(0xFF9575CD),
+                            duration: 3,
+                          ),
+                          const SizedBox(width: 50),
+                          AnimatedIconWithBorder(
+                            icon: Icons.opacity,
+                            fillColor: const Color(0xFF9575CD),
+                            duration: 3,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      AnimatedIconWithBorder(
+                        icon: Icons.nightlight_round,
+                        fillColor: const Color(0xFF9575CD),
+                        duration: 3,
+                      ),
+                      const SizedBox(height: 30),
+                      if (dataCollected)
+                        SlideTransition(
+                          position:
+                              _slideAnimation, // Animación de deslizamiento desde abajo
+                          child: Column(
+                            children: [
+                              Container(
+                                width: 100,
+                                height: 2,
+                                color: const Color(0xFF9575CD),
+                              ),
+                              const SizedBox(height: 20),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: const [
+                                  Icon(Icons.check,
+                                      color: Color(0xFF9575CD), size: 30),
+                                  SizedBox(width: 10),
+                                  Text(
+                                    'Datos recolectados',
+                                    style: TextStyle(
+                                      fontSize: 20.0,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 20),
+                              SlideTransition(
+                                position: _slideRecommendationsAnimation,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    recommendationsGenerated
+                                        ? const Icon(Icons.check,
+                                            color: Color(0xFF9575CD), size: 30)
+                                        : const SpinKitFadingCircle(
+                                            color: Color(0xFF9575CD), size: 30),
+                                    const SizedBox(width: 10),
+                                    const Text(
+                                      'Almacenando datos',
+                                      style: TextStyle(
+                                        fontSize: 20.0,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                     ],
                   ),
                 )
               : FadeTransition(
-                  opacity: _fadeAnimation,
+                  opacity: _fadeAnimation, // Animación para el primer texto
                   child: const Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
                         'Comencemos',
                         style: TextStyle(
-                          fontSize: 34.0,
+                          fontSize: 34.0, // Letras grandes
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
@@ -367,7 +430,6 @@ void showWearableDialog(BuildContext context) {
     );
   }
 }
-  
 
 // Widget para animar el relleno de los íconos
 class AnimatedIconWithBorder extends StatelessWidget {
@@ -431,6 +493,3 @@ class NextView extends StatelessWidget {
     );
   }
 }
-
-
-
