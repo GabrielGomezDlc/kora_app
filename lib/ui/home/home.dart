@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kora_app/ui/personalized_techniques/breathing_exercises.dart';
+import 'package:kora_app/ui/personalized_techniques/favorites_downloads.dart';
 import 'package:kora_app/ui/personalized_techniques/musictherapy.dart';
 import 'package:kora_app/ui/questionary/stai.dart';
 import 'package:kora_app/ui/relax_recommendations/relax_reco.dart';
@@ -34,7 +35,7 @@ class _HomeState extends State<Home> {
   static const List<Widget> _widgetOptions = <Widget>[
     HomeView(),
     Stai(),
-    BreathingExercises(),
+    FavoritesDownloads(),
     Musictherapy(),
     Text('Perfil'),
   ];

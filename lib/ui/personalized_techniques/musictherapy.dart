@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:kora_app/data/model/sound.dart';
 import 'package:kora_app/ui/home/home.dart';
+import 'package:kora_app/ui/personalized_techniques/downloads_provider.dart';
+import 'package:kora_app/ui/personalized_techniques/favorites_provider.dart';
+import 'package:provider/provider.dart';
 
 class Musictherapy extends StatefulWidget {
   const Musictherapy({super.key});
@@ -11,61 +14,48 @@ class Musictherapy extends StatefulWidget {
 }
 
 class _MusictherapyState extends State<Musictherapy> {
-  int? selectedCardIndex; // Mantendrá el índice de la card seleccionada
-  AudioPlayer audioPlayer = AudioPlayer(); // Instancia del reproductor de audio
-
-  // Variables para los favoritos
-  bool isFavorite1 = false;
-  bool isFavorite2 = false;
-  bool isFavorite3 = false;
-
-  // Variables para controlar el estado de reproducción
-  bool isPlaying1 = false;
-  bool isPlaying2 = false;
-  bool isPlaying3 = false;
+  int? selectedCardIndex;
+  AudioPlayer audioPlayer = AudioPlayer();
 
   @override
   void dispose() {
-    audioPlayer.dispose(); // Asegúrate de liberar recursos
+    audioPlayer.dispose();
     super.dispose();
   }
 
   // Función para reproducir o pausar audio
   void handlePlayPause(int cardIndex, String audioPath) async {
-    if (selectedCardIndex == cardIndex && (isPlaying1 || isPlaying2 || isPlaying3)) {
-      // Pausar si se está reproduciendo la misma tarjeta
+    if (selectedCardIndex == cardIndex) {
       await audioPlayer.pause();
       setState(() {
-        isPlaying1 = false;
-        isPlaying2 = false;
-        isPlaying3 = false;
         selectedCardIndex = null;
       });
     } else {
-      // Reproducir nuevo audio
-      await audioPlayer.stop(); // Detener cualquier audio anterior
-      await audioPlayer.play(AssetSource(audioPath));
+      await audioPlayer.stop();
+      await audioPlayer.play(AssetSource(audioPath)); // Usa AssetSource para archivos locales
       setState(() {
         selectedCardIndex = cardIndex;
-        isPlaying1 = cardIndex == 0;
-        isPlaying2 = cardIndex == 1;
-        isPlaying3 = cardIndex == 2;
       });
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
-   return Scaffold(
+    final List<Sound> sounds = [
+      Sound(title: 'Relajación profunda', audioPath: 'prueba.mp3'),
+      Sound(title: 'Sonidos de la naturaleza', audioPath: 'prueba.mp3'),
+      Sound(title: 'Ondas cerebrales', audioPath: 'prueba.mp3'),
+    ];
+
+    return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Color(0xFF4D24AF)),
           onPressed: () {
             Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const Home()),
-      );
+              context,
+              MaterialPageRoute(builder: (context) => const Home()),
+            );
           },
         ),
         title: const Center(
@@ -101,64 +91,18 @@ class _MusictherapyState extends State<Musictherapy> {
               ),
             ),
             const SizedBox(height: 8),
-
-            // Card 1
-            buildCard(
-              context,
-              'Relajación profunda',
-              0,
-              isFavorite1,
-              'prueba.mp3', // Ruta del audio
-              () {
-                setState(() {
-                  isFavorite1 = !isFavorite1;
-                });
-              },
-            ),
-
-            // Card 2
-            buildCard(
-              context,
-              'Sonidos de la naturaleza',
-              1,
-              isFavorite2,
-              'prueba.mp3', // Ruta del audio
-              () {
-                setState(() {
-                  isFavorite2 = !isFavorite2;
-                });
-              },
-            ),
-
-            // Card 3
-            buildCard(
-              context,
-              'Ondas cerebrales',
-              2,
-              isFavorite3,
-              'prueba.mp3', // Ruta del audio
-              () {
-                setState(() {
-                  isFavorite3 = !isFavorite3;
-                });
-              },
-            ),
+            for (int i = 0; i < sounds.length; i++)
+              buildCard(context, sounds[i], i),
           ],
         ),
       ),
     );
-
   }
-    // Widget para construir las cards
-   // Widget para construir las cards
-  Widget buildCard(
-    BuildContext context,
-    String title,
-    int cardIndex,
-    bool isFavorite,
-    String audioPath,
-    VoidCallback onFavoriteTap,
-  ) {
+
+  Widget buildCard(BuildContext context, Sound sound, int cardIndex) {
+    final isFavorite = context.watch<FavoritesProvider>().isFavorite(sound);
+    final isDownloaded = context.watch<DownloadsProvider>().isDownloaded(sound);
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 5.0),
       child: Card(
@@ -173,14 +117,14 @@ class _MusictherapyState extends State<Musictherapy> {
             children: [
               GestureDetector(
                 onTap: () {
-                  handlePlayPause(cardIndex, audioPath);
+                  handlePlayPause(cardIndex, sound.audioPath);
                 },
-                child: SvgPicture.asset(
+                child: Icon(
                   selectedCardIndex == cardIndex
-                      ? 'assets/play_on.svg' // Ícono cuando está reproduciendo
-                      : 'assets/play.svg', // Ícono cuando está detenido
-                  height: 36,
-                  width: 36,
+                      ? Icons.pause_circle
+                      : Icons.play_circle,
+                  color: const Color(0xFF00A991),
+                  size: 36,
                 ),
               ),
               const SizedBox(width: 8),
@@ -189,7 +133,7 @@ class _MusictherapyState extends State<Musictherapy> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      title,
+                      sound.title,
                       style: const TextStyle(fontSize: 18, color: Colors.black),
                     ),
                     const SizedBox(height: 1),
@@ -203,20 +147,40 @@ class _MusictherapyState extends State<Musictherapy> {
               Row(
                 children: [
                   GestureDetector(
-                    onTap: onFavoriteTap,
-                    child: SvgPicture.asset(
-                      isFavorite
-                          ? 'assets/favorite_added.svg'
-                          : 'assets/favorite.svg',
-                      height: 24,
-                      width: 24,
+                    onTap: () {
+                      context.read<FavoritesProvider>().toggleFavorite(sound);
+                    },
+                    child: Icon(
+                      isFavorite ? Icons.favorite : Icons.favorite_border,
+                      color: const Color(0xFF00A991),
+                      size: 24,
                     ),
                   ),
                   const SizedBox(width: 8),
-                  SvgPicture.asset(
-                    'assets/download.svg',
-                    height: 24,
-                    width: 24,
+                  GestureDetector(
+                    onTap: () async {
+                      await context.read<DownloadsProvider>().toggleDownload(sound);
+                      final isDownloaded =
+                          context.read<DownloadsProvider>().isDownloaded(sound);
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            isDownloaded
+                                ? 'Descargado exitosamente'
+                                : 'Descarga eliminada',
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                          backgroundColor: const Color(0xFF4D24AF),
+                          duration: const Duration(seconds: 2),
+                        ),
+                      );
+                    },
+                    child: Icon(
+                      isDownloaded ? Icons.download_done : Icons.download,
+                      color: isDownloaded ? const Color(0xFF00A991) : Colors.grey,
+                      size: 24,
+                    ),
                   ),
                 ],
               ),

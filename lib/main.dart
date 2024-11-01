@@ -15,6 +15,11 @@ import 'package:aad_oauth/model/failure.dart';
 import 'package:aad_oauth/model/token.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:kora_app/ui/personalized_techniques/downloads_provider.dart';
+import 'package:kora_app/ui/personalized_techniques/favorites_downloads.dart';
+import 'package:kora_app/ui/personalized_techniques/favorites_provider.dart';
+import 'package:kora_app/ui/personalized_techniques/musictherapy.dart';
+import 'package:provider/provider.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
@@ -22,7 +27,13 @@ void main() async {
   WidgetsFlutterBinding
       .ensureInitialized(); // Asegúrate de que los widgets están inicializados
   await Firebase.initializeApp(); // Inicializa Firebase
-  runApp(const MyApp());
+  runApp(MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => FavoritesProvider()),
+        ChangeNotifierProvider(create: (_) => DownloadsProvider()),
+      ],
+      child: MyApp(),
+    ),);
 }
 
 class MyApp extends StatelessWidget {
@@ -39,7 +50,7 @@ class MyApp extends StatelessWidget {
             ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 36, 17, 82)),
         useMaterial3: false,
       ),
-      home: Login(),
+      home:Musictherapy(),
     );
   }
 }
