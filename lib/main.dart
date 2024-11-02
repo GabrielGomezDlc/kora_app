@@ -3,6 +3,8 @@ import 'dart:math';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:kora_app/ui/connect_smartwatch_tuto/smartwatch_setup.dart';
+import 'package:kora_app/ui/home/home.dart';
 import 'package:kora_app/ui/iam/login.dart';
 import 'package:kora_app/ui/iam/login2.dart';
 //import 'package:kora_app/ui/iam/login.dart';
@@ -50,7 +52,7 @@ class MyApp extends StatelessWidget {
             ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 36, 17, 82)),
         useMaterial3: false,
       ),
-      home:Musictherapy(),
+      home:Login(),
     );
   }
 }

@@ -4,6 +4,7 @@ import 'package:kora_app/ui/personalized_techniques/favorites_downloads.dart';
 import 'package:kora_app/ui/personalized_techniques/musictherapy.dart';
 import 'package:kora_app/ui/questionary/stai.dart';
 import 'package:kora_app/ui/relax_recommendations/relax_reco.dart';
+import 'package:kora_app/ui/statitic/statitics.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart'
     hide CornerStyle, AnimationType;
 import 'package:syncfusion_flutter_charts/charts.dart';
@@ -34,7 +35,7 @@ class _HomeState extends State<Home> {
 
   static const List<Widget> _widgetOptions = <Widget>[
     HomeView(),
-    Stai(),
+    Statitics(),
     FavoritesDownloads(),
     Musictherapy(),
     Text('Perfil'),
@@ -228,7 +229,8 @@ class _HomeViewState extends State<HomeView> {
                 );
               },
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 14)
+            /*,
             _buildRecommendationCard(
               imagePath: 'assets/cirugía.png',
               title: 'Cirugía',
@@ -237,7 +239,7 @@ class _HomeViewState extends State<HomeView> {
               onPressed: () {
                 // Acción del botón de "Ver"
               },
-            ),
+            ),*/
           ],
         ),
       ),
@@ -501,7 +503,7 @@ class _HomeViewState extends State<HomeView> {
           ),
         ),
         padding: const EdgeInsets.all(15),
-        width: 160,
+        width: 159,
         height: 192, // Ajusta la altura para que todo quepa bien
         child: Column(
           crossAxisAlignment:

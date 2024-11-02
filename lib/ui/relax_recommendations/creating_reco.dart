@@ -6,6 +6,7 @@ import 'package:kora_app/ui/personalized_techniques/mindfulness.dart';
 import 'dart:math' as math;
 
 import 'package:kora_app/ui/personalized_techniques/musictherapy.dart';
+import 'package:kora_app/ui/personalized_techniques/techniques_selection.dart';
 
 class CustomLoadingScreen extends StatefulWidget {
   const CustomLoadingScreen({super.key});
@@ -29,9 +30,10 @@ class _CustomLoadingScreenState extends State<CustomLoadingScreen>
     // Espera 10 segundos antes de ir a otra pantalla
     Future.delayed(const Duration(seconds: 10), () {
       setState(() {
-              getPrediccion();
-            });
+        getPrediccion();
+      });
 
+/*
             if(this.recommendedTechniqueId == 0){
       Navigator.pushReplacement(
         context,
@@ -48,9 +50,14 @@ class _CustomLoadingScreenState extends State<CustomLoadingScreen>
         context,
         MaterialPageRoute(builder: (context) => const BreathingExercises()), // Reemplaza con tu vista de destino
       );
-            }
+            }*/
       // Aquí rediriges a la nueva vista
-
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+            builder: (context) =>
+                const TechniquesSelection()), // Reemplaza con tu vista de destino
+      );
     });
   }
 
@@ -65,11 +72,7 @@ class _CustomLoadingScreenState extends State<CustomLoadingScreen>
 
     // Crear una instancia de BiometricData con los valores
     final biometricData = BiometricData(
-      heartRate: 80,
-      bloodOxigen: 2000,
-      sleepMinutes: 480,
-      staiScore: 30
-    );
+        heartRate: 80, bloodOxigen: 2000, sleepMinutes: 480, staiScore: 30);
 
     try {
       // Realizar la predicción
@@ -81,7 +84,6 @@ class _CustomLoadingScreenState extends State<CustomLoadingScreen>
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -91,7 +93,8 @@ class _CustomLoadingScreenState extends State<CustomLoadingScreen>
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Padding(
-              padding: EdgeInsets.only(bottom: 40.0), // Espacio entre texto y animación
+              padding: EdgeInsets.only(
+                  bottom: 40.0), // Espacio entre texto y animación
               child: Text(
                 'Personalizando tus recomendaciones',
                 textAlign: TextAlign.center,
