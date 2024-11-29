@@ -30,6 +30,15 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_svg: ^2.0.10
+  audioplayers: ^6.1.0
+  firebase_core: ^3.5.0
+  firebase_auth: ^5.3.0
+  google_sign_in: ^6.1.0
+  syncfusion_flutter_charts: ^27.1.51
+  syncfusion_flutter_gauges: ^27.1.51
+
+
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -57,6 +66,35 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+  
+  assets:
+    - assets/facebook_morado.svg
+    - assets/facebook_blanco.svg
+    - assets/google_morado.svg
+    - assets/google_blanco.svg
+    - assets/apple_morado.svg
+    - assets/apple_blanco.svg
+    - assets/google-brands-solid.svg
+    - assets/login.png
+    - assets/back_hand.png
+    - lib/data/questions.json
+    - assets/music.png
+    - assets/favorite.svg
+    - assets/play.svg
+    - assets/download.svg
+    - assets/music_selected.svg
+    - assets/favorite_added.svg
+    - assets/play_on.svg
+    - assets/prueba.mp3
+    - assets/respiracion.png
+    - assets/happy.png
+    - assets/sad.png
+    - assets/angry.png
+    - assets/worried.png
+    - assets/tired.png
+
+
+    
 
   # To add assets to your application, add an assets section, like this:
   # assets:
