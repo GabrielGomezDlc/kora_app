@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kora_app/data/model/biometric_data.dart';
 import 'package:kora_app/data/remote/RelaksAPI/relaks_http_helper.dart';
+import 'package:kora_app/styles/colors.dart';
 import 'package:kora_app/ui/personalized_techniques/breathing_exercises.dart';
 import 'package:kora_app/ui/personalized_techniques/mindfulness.dart';
 import 'dart:math' as math;
@@ -68,7 +69,7 @@ class _CustomLoadingScreenState extends State<CustomLoadingScreen>
   }
 
   void getPrediccion() async {
-    final httpHelper = HttpHelper();
+    final mlhelper = MLHelper();
 
     // Crear una instancia de BiometricData con los valores
     final biometricData = BiometricData(
@@ -76,7 +77,7 @@ class _CustomLoadingScreenState extends State<CustomLoadingScreen>
 
     try {
       // Realizar la predicción
-      final prediction = await httpHelper.getPrediction(biometricData);
+      final prediction = await mlhelper.getPrediction(biometricData);
       this.recommendedTechniqueId = prediction.recommendedTechniqueId;
       print('Técnica recomendada ID: ${prediction.recommendedTechniqueId}');
     } catch (e) {
@@ -87,7 +88,7 @@ class _CustomLoadingScreenState extends State<CustomLoadingScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF2E004C), // Color de fondo similar
+      backgroundColor: AppColors.primaryColor, // Color de fondo similar
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

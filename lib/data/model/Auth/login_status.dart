@@ -1,0 +1,1 @@
+enum LogInStatus { userCreated, userloged, userExists, userNotFound }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:kora_app/data/model/sound.dart';
+import 'package:kora_app/styles/colors.dart';
+import 'package:kora_app/styles/texts.dart';
 import 'package:kora_app/ui/home/home.dart';
 import 'package:kora_app/ui/personalized_techniques/downloads_provider.dart';
 import 'package:kora_app/ui/personalized_techniques/favorites_provider.dart';
@@ -32,7 +34,8 @@ class _MusictherapyState extends State<Musictherapy> {
       });
     } else {
       await audioPlayer.stop();
-      await audioPlayer.play(AssetSource(audioPath)); // Usa AssetSource para archivos locales
+      await audioPlayer.play(
+          AssetSource(audioPath)); // Usa AssetSource para archivos locales
       setState(() {
         selectedCardIndex = cardIndex;
       });
@@ -50,7 +53,7 @@ class _MusictherapyState extends State<Musictherapy> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF4D24AF)),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
             Navigator.pushReplacement(
               context,
@@ -58,16 +61,14 @@ class _MusictherapyState extends State<Musictherapy> {
             );
           },
         ),
-        title: const Center(
-          child: Text(
-            'Musicoterapia',
-            style: TextStyle(color: Color(0xFF4D24AF)),
-          ),
+        title: Text(
+          'Musicoterapia',
+          style: AppTextStyles.headline2,
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.primaryColor,
         elevation: 0,
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.primaryColor,
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -84,7 +85,7 @@ class _MusictherapyState extends State<Musictherapy> {
               child: Text(
                 'Alivia la ansiedad con estos sonidos relajantes',
                 style: TextStyle(
-                  color: Colors.black,
+                  color: Colors.white,
                   fontWeight: FontWeight.normal,
                   fontSize: 18,
                 ),
@@ -159,7 +160,9 @@ class _MusictherapyState extends State<Musictherapy> {
                   const SizedBox(width: 8),
                   GestureDetector(
                     onTap: () async {
-                      await context.read<DownloadsProvider>().toggleDownload(sound);
+                      await context
+                          .read<DownloadsProvider>()
+                          .toggleDownload(sound);
                       final isDownloaded =
                           context.read<DownloadsProvider>().isDownloaded(sound);
 
@@ -178,7 +181,8 @@ class _MusictherapyState extends State<Musictherapy> {
                     },
                     child: Icon(
                       isDownloaded ? Icons.download_done : Icons.download,
-                      color: isDownloaded ? const Color(0xFF00A991) : Colors.grey,
+                      color:
+                          isDownloaded ? const Color(0xFF00A991) : Colors.grey,
                       size: 24,
                     ),
                   ),

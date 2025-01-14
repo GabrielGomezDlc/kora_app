@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:kora_app/data/model/biometric_data.dart';
 import 'package:kora_app/data/model/recommended_technique.dart';
 
-class HttpHelper {
+class MLHelper {
   final String urlBase = 'http://192.168.18.19:5000'; // Base URL de la API Flask
   //final String urlBase = 'https://relaksapi-production.up.railway.app'; // Base URL de la API Flask
 

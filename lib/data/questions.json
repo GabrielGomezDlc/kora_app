@@ -16,7 +16,7 @@
     { "question": "15. Estoy relajado", "options": ["Nada", "Algo", "Bastante", "Mucho"] },
     { "question": "16. Me siento satisfecho", "options": ["Nada", "Algo", "Bastante", "Mucho"] },
     { "question": "17. Estoy preocupado", "options": ["Nada", "Algo", "Bastante", "Mucho"] },
-    { "question": "18. Estoy tensoMe siento aturdido y sobreexcitado", "options": ["Nada", "Algo", "Bastante", "Mucho"] },
+    { "question": "18. Me siento aturdido y sobreexcitado", "options": ["Nada", "Algo", "Bastante", "Mucho"] },
     { "question": "19. Me siento alegre", "options": ["Nada", "Algo", "Bastante", "Mucho"] },
     { "question": "20. En este momento me siento bien", "options": ["Nada", "Algo", "Bastante", "Mucho"] }
 

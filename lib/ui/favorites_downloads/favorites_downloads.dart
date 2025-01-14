@@ -5,6 +5,8 @@ import 'package:kora_app/ui/home/home.dart';
 import 'package:kora_app/ui/personalized_techniques/downloads_provider.dart';
 import 'package:kora_app/ui/personalized_techniques/favorites_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:kora_app/styles/colors.dart';
+import 'package:kora_app/styles/texts.dart';
 
 class FavoritesDownloads extends StatefulWidget {
   const FavoritesDownloads({super.key});
@@ -13,7 +15,8 @@ class FavoritesDownloads extends StatefulWidget {
   State<FavoritesDownloads> createState() => _FavoritesDownloadsState();
 }
 
-class _FavoritesDownloadsState extends State<FavoritesDownloads> with SingleTickerProviderStateMixin {
+class _FavoritesDownloadsState extends State<FavoritesDownloads>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   AudioPlayer audioPlayer = AudioPlayer();
   int? selectedCardIndex;
@@ -32,7 +35,8 @@ class _FavoritesDownloadsState extends State<FavoritesDownloads> with SingleTick
   }
 
   // Función para reproducir o pausar audio desde archivo local o descargado
-  void handlePlayPause(int cardIndex, String audioPath, bool isDownloaded) async {
+  void handlePlayPause(
+      int cardIndex, String audioPath, bool isDownloaded) async {
     if (selectedCardIndex == cardIndex) {
       await audioPlayer.pause();
       setState(() {
@@ -59,8 +63,16 @@ class _FavoritesDownloadsState extends State<FavoritesDownloads> with SingleTick
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Favorites and Downloads'),
-        backgroundColor: const Color.fromARGB(255, 36, 17, 82),
+        automaticallyImplyLeading: false,
+        title: const Padding(
+          padding:
+              EdgeInsets.only(top: 20.0), // Padding solo en la parte superior
+          child: Text(
+            'Guardados',
+            style: AppTextStyles.headline1,
+          ),
+        ),
+        backgroundColor: AppColors.primaryColor,
         elevation: 0,
         bottom: TabBar(
           controller: _tabController,
@@ -70,11 +82,12 @@ class _FavoritesDownloadsState extends State<FavoritesDownloads> with SingleTick
           ),
           labelColor: Colors.white,
           unselectedLabelColor: Colors.grey,
-          labelStyle: const TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+          labelStyle:
+              const TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
           unselectedLabelStyle: const TextStyle(fontSize: 15.0),
           tabs: const [
-            Tab(text: 'Favorites'),
-            Tab(text: 'Downloads'),
+            Tab(text: 'Favoritos'),
+            Tab(text: 'Descargados'),
           ],
         ),
       ),
@@ -93,7 +106,7 @@ class _FavoritesDownloadsState extends State<FavoritesDownloads> with SingleTick
                 )
               : const Center(
                   child: Text(
-                    'No favorites yet',
+                    'No tienes Favoritos aun.',
                     style: TextStyle(color: Colors.white),
                   ),
                 ),
@@ -108,7 +121,7 @@ class _FavoritesDownloadsState extends State<FavoritesDownloads> with SingleTick
                 )
               : const Center(
                   child: Text(
-                    'No downloads yet',
+                    'No tienes Descargados aun.',
                     style: TextStyle(color: Colors.white),
                   ),
                 ),
@@ -118,7 +131,8 @@ class _FavoritesDownloadsState extends State<FavoritesDownloads> with SingleTick
   }
 
   // Construye la card para favoritos y descargas
-  Widget buildCard(BuildContext context, Sound sound, int cardIndex, bool isFavoriteTab) {
+  Widget buildCard(
+      BuildContext context, Sound sound, int cardIndex, bool isFavoriteTab) {
     final isFavorite = context.watch<FavoritesProvider>().isFavorite(sound);
     final isDownloaded = context.watch<DownloadsProvider>().isDownloaded(sound);
 
@@ -140,8 +154,12 @@ class _FavoritesDownloadsState extends State<FavoritesDownloads> with SingleTick
                   handlePlayPause(cardIndex, sound.audioPath, isDownloaded);
                 },
                 child: Icon(
-                  selectedCardIndex == cardIndex ? Icons.pause_circle : Icons.play_circle,
-                  color: selectedCardIndex == cardIndex ? Color(0xFF00A991) : Color(0xFF00A991),
+                  selectedCardIndex == cardIndex
+                      ? Icons.pause_circle
+                      : Icons.play_circle,
+                  color: selectedCardIndex == cardIndex
+                      ? Color(0xFF00A991)
+                      : Color(0xFF00A991),
                   size: 36,
                 ),
               ),
@@ -181,8 +199,12 @@ class _FavoritesDownloadsState extends State<FavoritesDownloads> with SingleTick
                   if (!isFavoriteTab)
                     GestureDetector(
                       onTap: () async {
-                        await context.read<DownloadsProvider>().toggleDownload(sound);
-                        final isDownloadedNow = context.read<DownloadsProvider>().isDownloaded(sound);
+                        await context
+                            .read<DownloadsProvider>()
+                            .toggleDownload(sound);
+                        final isDownloadedNow = context
+                            .read<DownloadsProvider>()
+                            .isDownloaded(sound);
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(

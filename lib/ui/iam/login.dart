@@ -1,17 +1,23 @@
+import 'dart:convert';
+
 import 'package:aad_oauth/aad_oauth.dart';
 import 'package:aad_oauth/model/config.dart';
 import 'package:aad_oauth/model/failure.dart';
 import 'package:aad_oauth/model/token.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:kora_app/data/remote/KoraAPI/kora_http_helper.dart';
+import 'package:kora_app/data/model/Auth/login_status.dart';
 import 'package:kora_app/main.dart';
-import 'package:kora_app/ui/biometric_recollection/sleep_hours.dart';
 import 'package:kora_app/ui/connect_smartwatch_tuto/smartwatch_setup.dart';
 import 'package:kora_app/ui/home/home.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_appauth/flutter_appauth.dart';
+import 'package:kora_app/ui/iam/signin.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -27,7 +33,9 @@ class _LoginState extends State<Login> {
   Color microsoftButtonColor = Colors.white;
   Color textColor = const Color(0xFF241152);
   Color backgroundColor = const Color(0xFF241152);
-  bool isSigningIn = false; // Estado para mostrar progreso al iniciar sesión
+  bool isFacebookSigningIn = false;
+  bool isGoogleSigningIn = false;
+  bool isMicrosoftSigningIn = false;
   final FlutterAppAuth appAuth = FlutterAppAuth();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
@@ -41,7 +49,7 @@ class _LoginState extends State<Login> {
 
   Future<void> _signInWithGoogle() async {
     setState(() {
-      isSigningIn = true; // Deshabilitar el botón cuando se presiona
+      isGoogleSigningIn = true; // Deshabilitar el botón cuando se presiona
     });
 
     try {
@@ -61,11 +69,52 @@ class _LoginState extends State<Login> {
         idToken: googleAuth.idToken,
       );
 
-      await _auth.signInWithCredential(credential);
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => SmartwatchSetupView()),
-      );
+      final UserCredential userCredential =
+          await _auth.signInWithCredential(credential);
+
+      // Obtén información del usuario
+      final User? user = userCredential.user;
+      if (user != null) {
+        print('Inicio de sesión exitoso:');
+        print('Nombre: ${user.displayName}');
+        print('Correo electrónico: ${user.email}');
+        print('Foto de perfil: ${user.photoURL}');
+        print('UID: ${user.uid}');
+      }
+
+      // Guardar información del usuario y token en SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('accessToken', googleAuth.accessToken ?? '');
+      await prefs.setString('displayName', user?.displayName ?? '');
+      await prefs.setString('email', user?.email ?? '');
+      await prefs.setString('photoURL', user?.photoURL ?? '');
+      await prefs.setString('uid', user?.uid ?? '');
+
+      final koraHelper = KoraHelper();
+
+      // Llamar al KoraHelper con el email del usuario
+      try {
+        final logStatus = await koraHelper.logIn(user?.email ?? '');
+        switch (logStatus) {
+          case LogInStatus.userExists:
+            _checkTutoSWConnectPassed();
+            break;
+
+          case LogInStatus.userNotFound:
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => Signin()),
+            );
+            break;
+
+          default:
+            throw Exception('Unexpected status when logging in.');
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error logging in: $e')),
+        );
+      }
     } catch (e) {
       print('Error al iniciar sesión con Google: $e');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -73,149 +122,86 @@ class _LoginState extends State<Login> {
       );
     } finally {
       setState(() {
-        isSigningIn = false; // Rehabilitar el botón después de la acción
+        isGoogleSigningIn = false; // Deshabilitar el botón cuando se presiona
       });
     }
   }
 
-  Future<void> _signInWithMicrosoft() async {
+  Future<void> _signInWithFacebook() async {
+    setState(() {
+      isFacebookSigningIn = true; // Deshabilitar el botón cuando se presiona
+    });
     try {
-      final AuthorizationTokenResponse? result =
-          await appAuth.authorizeAndExchangeCode(
-        AuthorizationTokenRequest(
-          '547f0ad9-8ffa-4d32-8920-77448e13464a', // El client_id registrado en Azure
-          'msauth://com.example.kora_app/callback', // URI de redirección configurada en Azure
-          discoveryUrl:
-              'https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration',
-          scopes: ['openid', 'profile', 'email', 'user.read'],
-        ),
+      // Realiza el inicio de sesión con Facebook
+      final LoginResult result = await FacebookAuth.instance.login(
+        permissions: ['email', 'public_profile'], // Permisos que solicitas
+        loginBehavior:
+            LoginBehavior.webOnly, // Fuerza el inicio de sesión en el navegador
       );
 
-      if (result != null) {
-        // Usa el token de acceso o idToken para autenticación en Firebase
+      if (result.status == LoginStatus.success) {
+        // Obtén el token de acceso
+        final AccessToken accessToken = result.accessToken!;
+
+        // Crea las credenciales para Firebase
         final OAuthCredential credential =
-            OAuthProvider("microsoft.com").credential(
-          accessToken: result.accessToken,
-          idToken: result.idToken,
-        );
+            FacebookAuthProvider.credential(accessToken.tokenString);
 
-        await FirebaseAuth.instance.signInWithCredential(credential);
-
-        // Puedes acceder a la información del usuario
-        User? user = FirebaseAuth.instance.currentUser;
-        print('Email del usuario: ${user?.email}');
-        print('Nombre del usuario: ${user?.displayName}');
-      }
-    } catch (e) {
-      print('Error durante la autenticación con Microsoft: $e');
-    }
-  }
-
-  Future<void> _signInWithMicrosoftOld() async {
-    try {
-      // Autoriza con Microsoft y obtiene el token de acceso e ID token
-      final AuthorizationTokenResponse? result =
-          await appAuth.authorizeAndExchangeCode(
-        AuthorizationTokenRequest(
-          '547f0ad9-8ffa-4d32-8920-77448e13464a',
-          'msauth://com.example.kora_app/callback', // La misma URI registrada en Azure
-          discoveryUrl:
-              'https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration',
-          scopes: [
-            'openid',
-            'profile',
-            'email',
-            'user.read'
-          ], // Scopes para obtener datos del perfil y email
-        ),
-      );
-
-      if (result != null) {
-        print('Access token: ${result.accessToken}');
-        print('ID token: ${result.idToken}');
-
-        // Usa el token de acceso para autenticar en Firebase
-        final OAuthCredential credential =
-            OAuthProvider("microsoft.com").credential(
-          accessToken: result.accessToken,
-          idToken: result.idToken,
-        );
-
-        // Inicia sesión con Firebase usando las credenciales obtenidas de Microsoft
+        // Inicia sesión con Firebase
         final UserCredential userCredential =
             await FirebaseAuth.instance.signInWithCredential(credential);
+
+        // Obtén la información del usuario
         final User? user = userCredential.user;
-
-        // Imprime la información del usuario
         if (user != null) {
-          print("Email del usuario: ${user.email}");
-          print("Nombre del usuario: ${user.displayName}");
-          print("ID del usuario: ${user.uid}");
-        } else {
-          print("Error: No se pudo obtener la información del usuario.");
+          print('Inicio de sesión exitoso:');
+          print('Nombre: ${user.displayName}');
+          print('Correo electrónico: ${user.email}');
+          print('Foto de perfil: ${user.photoURL}');
         }
+
+        // Guardar información en SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('accessToken', accessToken.tokenString);
+        await prefs.setString('displayName', user?.displayName ?? '');
+        await prefs.setString('email', user?.email ?? '');
+        await prefs.setString('photoURL', user?.photoURL ?? '');
+
+        final koraHelper = KoraHelper();
+
+        // Llamar al KoraHelper con el email del usuario
+        try {
+          final logStatus = await koraHelper.logIn(user?.email ?? '');
+          switch (logStatus) {
+            case LogInStatus.userExists:
+              _checkTutoSWConnectPassed();
+              break;
+
+            case LogInStatus.userNotFound:
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => Signin()),
+              );
+              break;
+
+            default:
+              throw Exception('Unexpected status when logging in.');
+          }
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error logging in: $e')),
+          );
+        }
+      } else if (result.status == LoginStatus.cancelled) {
+        print('Inicio de sesión cancelado por el usuario.');
       } else {
-        print("Error: No se obtuvo ningún token de Microsoft.");
+        print('Error durante el inicio de sesión: ${result.message}');
       }
     } catch (e) {
-      print('Error durante la autenticación: $e');
-    }
-  }
-
-  Future<void> _signInWithMicrosoft6() async {
-    try {
-      // Crea el proveedor OAuth de Microsoft
-      final provider = OAuthProvider("microsoft.com");
-      provider.setCustomParameters(
-          {"tenant": "1bb1660c-28f6-401a-a7bc-41022e3641c2"});
-
-      // Autenticación con Microsoft
-      final UserCredential userCredential =
-          await FirebaseAuth.instance.signInWithProvider(provider);
-
-      // Obtiene el usuario autenticado
-      final User? user = userCredential.user;
-
-      // Imprime la información del usuario
-      if (user != null) {
-        print("Email del usuario: ${user.email}");
-        print("Nombre del usuario: ${user.displayName}");
-
-        // También puedes obtener otros datos del usuario si están disponibles
-        print("ID del usuario: ${user.uid}");
-      } else {
-        print("Error: No se pudo obtener la información del usuario.");
-      }
-    } catch (e) {
-      // Manejo de errores
-      print("Error al iniciar sesión con Microsoft: $e");
-    }
-  }
-
-  Future<void> _signInWithMicrosoftOld3() async {
-    setState(() {
-      isSigningIn = true; // Mostrar indicador de carga
-    });
-
-    try {
-      // Crea el proveedor de Microsoft
-      final OAuthProvider microsoftProvider = OAuthProvider("microsoft.com");
-
-      // Define los permisos (scopes) que necesitas
-      microsoftProvider.setScopes([
-        'user.read', // Permiso para leer la información del usuario
-      ]);
-
-      // Usa el método de redirección para móviles
-      await FirebaseAuth.instance.signInWithRedirect(microsoftProvider);
-    } catch (e) {
-      print('Error al iniciar sesión con Microsoft: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al iniciar sesión con Microsoft: $e')),
-      );
+      print('Excepción durante el inicio de sesión con Facebook: $e');
     } finally {
       setState(() {
-        isSigningIn = false; // Ocultar el indicador de carga
+        isFacebookSigningIn = false; // Deshabilitar el botón cuando se presiona
       });
     }
   }
@@ -228,10 +214,7 @@ class _LoginState extends State<Login> {
 
       if (userCredential.user != null) {
         // Usuario autenticado exitosamente
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const Home()),
-        );
+        _checkTutoSWConnectPassed();
       }
     } catch (e) {
       print('Error al obtener el resultado de redirección: $e');
@@ -250,6 +233,10 @@ class _LoginState extends State<Login> {
   ));
 
   _loginWithMicrosoft() async {
+    setState(() {
+      isMicrosoftSigningIn = true; // Deshabilitar el botón cuando se presiona
+    });
+
     try {
       var result = await _microsoftSignIn.login();
 
@@ -265,15 +252,78 @@ class _LoginState extends State<Login> {
 
           print('Autenticado con éxito, ID Token: ${token.idToken!}');
           print('Autenticado con éxito, Access Token: ${token.accessToken!}');
-          //await _microsoftSignIn.logout();
-          // Aquí puedes usar el idToken y accessToken para interactuar con Firebase u otras APIs
-          //await signInWithMicrosoft(token.idToken!, token.accessToken!);
-          Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (context) => const Home()));
+
+          decodeAccessToken(token.accessToken!);
         },
       );
     } catch (e) {
       print('Excepción durante el inicio de sesión: $e');
+    } finally {
+      setState(() {
+        isMicrosoftSigningIn =
+            false; // Deshabilitar el botón cuando se presiona
+      });
+    }
+  }
+
+  Future<void> decodeAccessToken(String accessToken) async {
+    try {
+      // Divide el token en partes (Header, Payload, Signature)
+      final List<String> parts = accessToken.split('.');
+      if (parts.length != 3) {
+        throw Exception('El token no está bien formado.');
+      }
+
+      // Decodifica el payload (la segunda parte del token)
+      final String payload =
+          utf8.decode(base64Url.decode(base64Url.normalize(parts[1])));
+
+      // Convierte el payload a un Map
+      final Map<String, dynamic> payloadData = jsonDecode(payload);
+
+      // Extrae los datos que necesitas
+      final String? name = payloadData['name'];
+      final String? email = payloadData['email'];
+      final String? preferredUsername = payloadData['preferred_username'];
+
+      print('Nombre: $name');
+      print('Correo electrónico: $email');
+      print('Nombre de usuario preferido: $preferredUsername');
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('accessToken', accessToken);
+      await prefs.setString('displayName', name ?? '');
+      await prefs.setString('email', email ?? '');
+      await prefs.setString('photoURL',
+          "https://images.ctfassets.net/spoqsaf9291f/5sSoTBp0HeC62pU6SXYmKj/5f2a0ee8c6310aaab7ed99645a3e3056/startup_launch_2.png");
+
+      final koraHelper = KoraHelper();
+
+      // Llamar al KoraHelper con el email del usuario
+      try {
+        final logStatus = await koraHelper.logIn(email ?? '');
+        switch (logStatus) {
+          case LogInStatus.userExists:
+            _checkTutoSWConnectPassed();
+            break;
+
+          case LogInStatus.userNotFound:
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => Signin()),
+            );
+            break;
+
+          default:
+            throw Exception('Unexpected status when logging in.');
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error logging in: $e')),
+        );
+      }
+    } catch (e) {
+      print('Error al decodificar el token: $e');
     }
   }
 
@@ -301,7 +351,9 @@ class _LoginState extends State<Login> {
 
   Future<void> _signOut() async {
     await _auth.signOut();
-    await _googleSignIn.signOut(); // Cerrar sesión de Google también
+    await _googleSignIn.signOut();
+    await FacebookAuth.instance.logOut();
+    await _microsoftSignIn.logout();
   }
 
   void onButtonPressed(String button) {
@@ -313,18 +365,37 @@ class _LoginState extends State<Login> {
 
       if (button == 'facebook') {
         facebookButtonColor = backgroundColor;
-        // Aquí puedes agregar la lógica para Facebook
+        _signInWithFacebook();
       } else if (button == 'google') {
         googleButtonColor = backgroundColor;
-        _signInWithGoogle(); // Iniciar sesión con Google
+        _signInWithGoogle();
       } else if (button == 'apple') {
         appleButtonColor = backgroundColor;
-        // Aquí puedes agregar la lógica para Apple ID
       } else if (button == 'microsoft') {
         microsoftButtonColor = backgroundColor;
-        _loginWithMicrosoft(); // Iniciar sesión con Microsoft
+        _loginWithMicrosoft();
       }
     });
+  }
+
+  Future<void> _checkTutoSWConnectPassed() async {
+    final prefs = await SharedPreferences.getInstance();
+    final selectedMethod = prefs.getString('selectedMethod') ?? '';
+
+    if (selectedMethod == "smartwatch") {
+      final tutopassed = prefs.getString('tutoSWConnectPassed') ?? '';
+      if (tutopassed == "true") {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => Home()),
+        );
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => SmartwatchSetupView()),
+        );
+      }
+    }
   }
 
   @override
@@ -403,7 +474,7 @@ class _LoginState extends State<Login> {
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 8.0),
                     child: Text(
-                      'Login with',
+                      'Iniciar sesión con',
                       style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.normal,
@@ -439,7 +510,9 @@ class _LoginState extends State<Login> {
                         height: 20,
                       ),
                       label: Text(
-                        'Facebook',
+                        isFacebookSigningIn
+                            ? 'Iniciando sesión...'
+                            : 'Facebook',
                         style: TextStyle(
                           color: facebookButtonColor == backgroundColor
                               ? Colors.white
@@ -466,7 +539,7 @@ class _LoginState extends State<Login> {
                         height: 20,
                       ),
                       label: Text(
-                        isSigningIn ? 'Iniciando sesión...' : 'Google',
+                        isGoogleSigningIn ? 'Iniciando sesión...' : 'Google',
                         style: TextStyle(
                           color: googleButtonColor == backgroundColor
                               ? Colors.white
@@ -491,12 +564,14 @@ class _LoginState extends State<Login> {
                       },
                       icon: SvgPicture.asset(
                         microsoftButtonColor == backgroundColor
-                            ? 'assets/microsoft_morado.svg'
+                            ? 'assets/microsoft_blanco.svg'
                             : 'assets/microsoft_morado.svg',
                         height: 20,
                       ),
                       label: Text(
-                        'Microsoft',
+                        isMicrosoftSigningIn
+                            ? 'Iniciando sesión...'
+                            : 'Microsoft',
                         style: TextStyle(
                           color: microsoftButtonColor == backgroundColor
                               ? Colors.white

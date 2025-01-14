@@ -1,27 +1,23 @@
-import 'dart:math';
+import 'dart:io';
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:health/health.dart';
+import 'package:kora_app/data/remote/KoraAPI/kora_http_helper.dart';
+import 'package:kora_app/data/model/Auth/login_status.dart';
+import 'package:kora_app/styles/colors.dart';
 import 'package:kora_app/ui/connect_smartwatch_tuto/smartwatch_setup.dart';
+import 'package:kora_app/ui/data_collection_method/data_collection_method.dart';
 import 'package:kora_app/ui/home/home.dart';
 import 'package:kora_app/ui/iam/login.dart';
-import 'package:kora_app/ui/iam/login2.dart';
-//import 'package:kora_app/ui/iam/login.dart';
-//import 'package:kora_app/ui/questionary/stai.dart';
-//import 'package:kora_app/ui/questionary/stai.dart';
 
-import 'package:aad_oauth/aad_oauth.dart';
-import 'package:aad_oauth/model/config.dart';
-import 'package:aad_oauth/model/failure.dart';
-import 'package:aad_oauth/model/token.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:kora_app/ui/iam/signin.dart';
 import 'package:kora_app/ui/personalized_techniques/downloads_provider.dart';
-import 'package:kora_app/ui/personalized_techniques/favorites_downloads.dart';
 import 'package:kora_app/ui/personalized_techniques/favorites_provider.dart';
-import 'package:kora_app/ui/personalized_techniques/musictherapy.dart';
+import 'package:kora_app/ui/smartwatch_connection/util.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
@@ -30,119 +26,171 @@ void main() async {
       .ensureInitialized(); // Asegúrate de que los widgets están inicializados
   await Firebase.initializeApp(); // Inicializa Firebase
   runApp(MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => FavoritesProvider()),
-        ChangeNotifierProvider(create: (_) => DownloadsProvider()),
-      ],
-      child: MyApp(),
-    ),);
+    providers: [
+      ChangeNotifierProvider(create: (_) => FavoritesProvider()),
+      ChangeNotifierProvider(create: (_) => DownloadsProvider()),
+    ],
+    child: const MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       navigatorKey: navigatorKey,
-      title: 'Flutter Demo',
+      title: 'Kora',
       theme: ThemeData(
-        colorScheme:
-            ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 36, 17, 82)),
+        colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primaryColor),
         useMaterial3: false,
       ),
-      home:Login(),
+      home: DataCollectionMethodScreen(), // Usamos la pantalla de carga inicial
     );
   }
 }
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
 
   @override
-  _LoginScreenState createState() => _LoginScreenState();
+  // ignore: library_private_types_in_public_api
+  _SplashScreenState createState() => _SplashScreenState();
 }
 
-String generateNonce([int length = 32]) {
-  const charset =
-      '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._';
-  final random = Random.secure();
-  return List.generate(length, (_) => charset[random.nextInt(charset.length)])
-      .join();
-}
-
-class _LoginScreenState extends State<LoginScreen> {
-  final _microsoftSignIn = AadOAuth(Config(
-    tenant: "common",
-    clientId: "547f0ad9-8ffa-4d32-8920-77448e13464a",
-    responseType: "code", // Solicita el código de autorización
-    scope: "openid profile email api://547f0ad9-8ffa-4d32-8920-77448e13464a/Files.Read", // Asegúrate de incluir "openid"
-    redirectUri: "msal547f0ad9-8ffa-4d32-8920-77448e13464a://auth",
-    loader: const Center(child: CircularProgressIndicator()),
-    navigatorKey: navigatorKey, // Genera un nonce único
-  ));
-
-  _loginWithMicrosoft() async {
-    try {
-      var result = await _microsoftSignIn.login();
-
-      result.fold(
-        (Failure failure) {
-          print('Error al autenticar: ${failure.message}');
-        },
-        (Token token) async {
-          if (token.idToken == null || token.accessToken == null) {
-            print('No se recibió un token válido');
-            return;
-          }
-
-          print('Autenticado con éxito, ID Token: ${token.idToken!}');
-          print('Autenticado con éxito, Access Token: ${token.accessToken!}');
-
-          // Aquí puedes usar el idToken y accessToken para interactuar con Firebase u otras APIs
-          await signInWithMicrosoft(token.idToken!, token.accessToken!);
-
-          //await _microsoftSignIn.logout();
-        },
-      );
-    } catch (e) {
-      print('Excepción durante el inicio de sesión: $e');
-    }
+class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _initializeApp();
   }
 
-  Future<void> signInWithMicrosoft(String idToken, String accessToken) async {
-    try {
-      // Crea la credencial de Firebase con el accessToken o idToken
-      final AuthCredential credential =
-          OAuthProvider("microsoft.com").credential(
-        idToken: idToken,
-        accessToken: accessToken
-      );
+  Future<void> _initializeApp() async {
+    // Solicitar permisos
+    //getHealthConnectSdkStatus();
 
-      // Autentica el usuario en Firebase usando la credencial
-      UserCredential userCredential =
-          await FirebaseAuth.instance.signInWithCredential(credential);
-
-      final User? user = userCredential.user;
-      if (user != null) {
-        print('Autenticado en Firebase con Microsoft. UID: ${user.uid}');
-      } else {
-        print(
-            'Error: Usuario es null después del inicio de sesión en Firebase');
-      }
-    } catch (e) {
-      print('Error al iniciar sesión en Firebase con Microsoft: $e');
-    }
+    await _checkIfLoggedIn();
+    await _loadSelectedMethod();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: ElevatedButton(
-        onPressed: () => _loginWithMicrosoft(),
-        child: Text('Log in with Microsoft'),
+    return const Scaffold(
+      backgroundColor: Colors.transparent,
+      body: Center(
+        child: CircularProgressIndicator(),
       ),
     );
+  }
+
+  Future<void> _checkIfLoggedIn() async {
+    final prefs = await SharedPreferences.getInstance();
+    final accessToken = prefs.getString('accessToken');
+    final email = prefs.getString('email');
+
+    if (accessToken != null && email != null) {
+      final koraHelper = KoraHelper();
+
+      try {
+        final logStatus = await koraHelper.logIn(email);
+
+        switch (logStatus) {
+          case LogInStatus.userExists:
+            _checkTutoSWConnectPassed();
+            break;
+
+          case LogInStatus.userNotFound:
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => Signin()),
+            );
+            break;
+
+          default:
+            throw Exception('Unexpected status when logging in.');
+        }
+      } catch (e) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => Login()),
+        );
+      }
+    } else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => Login()),
+      );
+    }
+  }
+
+  Future<void> getHealthConnectSdkStatus() async {
+    assert(Platform.isAndroid, "This is only available on Android");
+
+    final status = await Health().getHealthConnectSdkStatus();
+    print(status?.name.toUpperCase());
+
+    if (status?.name.toUpperCase() == "SDKUNAVAILABLEPROVIDERUPDATEREQUIRED") {
+      await Health().installHealthConnect();
+    }
+  }
+
+  Future<void> requestHealthConnectPermissions() async {
+    // configure the health plugin before use.
+    Health().configure();
+
+    List<HealthDataType> types = [
+      HealthDataType.SLEEP_SESSION,
+      HealthDataType.HEART_RATE,
+      HealthDataType.BLOOD_OXYGEN,
+    ];
+
+    bool requested = await Health().requestAuthorization(types);
+
+    if (requested) {
+      print("Permisos otorgados.");
+    } else {
+      print(
+          "Permisos denegados. Por favor, permite el acceso en Health Connect.");
+    }
+  }
+
+  Future<void> _loadSelectedMethod() async {
+    final prefs = await SharedPreferences.getInstance();
+    final selectedMethod = prefs.getString('selectedMethod') ?? '';
+
+    if (selectedMethod == "smartwatch") {
+      final status = await Health().getHealthConnectSdkStatus();
+
+      if (status?.name.toUpperCase() ==
+          "SDKUNAVAILABLEPROVIDERUPDATEREQUIRED") {
+        print(
+            "Health Connect no está instalado. Llevando al usuario a instalarlo.");
+        await Health().installHealthConnect(); // Instala Health Connect
+      } else {
+        print("Health Connect está instalado. Solicitando permisos.");
+        await requestHealthConnectPermissions(); // Llama a la función de permisos
+      }
+    }
+  }
+
+  Future<void> _checkTutoSWConnectPassed() async {
+    final prefs = await SharedPreferences.getInstance();
+    final selectedMethod = prefs.getString('selectedMethod') ?? '';
+
+    if (selectedMethod == "smartwatch") {
+      final tutopassed = prefs.getString('tutoSWConnectPassed') ?? '';
+      if (tutopassed == "true") {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => Home()),
+        );
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => SmartwatchSetupView()),
+        );
+      }
+    }
   }
 }

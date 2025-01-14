@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:kora_app/ui/personalized_techniques/breathing_exercises.dart';
-import 'package:kora_app/ui/personalized_techniques/favorites_downloads.dart';
+import 'package:kora_app/ui/favorites_downloads/favorites_downloads.dart';
 import 'package:kora_app/ui/personalized_techniques/musictherapy.dart';
+import 'package:kora_app/ui/profile/profile.dart';
 import 'package:kora_app/ui/questionary/stai.dart';
 import 'package:kora_app/ui/relax_recommendations/relax_reco.dart';
 import 'package:kora_app/ui/statitic/statitics.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart'
     hide CornerStyle, AnimationType;
 import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:kora_app/styles/colors.dart';
+import 'package:kora_app/styles/texts.dart';
 
 class ChartSampleData {
   ChartSampleData({
@@ -38,7 +42,7 @@ class _HomeState extends State<Home> {
     Statitics(),
     FavoritesDownloads(),
     Musictherapy(),
-    Text('Perfil'),
+    Profile(),
   ];
 
   void _onItemTapped(int index) {
@@ -76,13 +80,13 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 36, 17, 82),
+      backgroundColor: AppColors.primaryColor,
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),
       ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        backgroundColor: const Color.fromARGB(255, 41, 27, 73),
+        backgroundColor: AppColors.primaryColor,
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: _buildIconWithIndicator(
@@ -139,37 +143,52 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
-   String? _selectedEmotion;
+  String displayName = '';
+
+  String? _selectedEmotion;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserDisplayName();
+  }
+
+  Future<void> _loadUserDisplayName() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? fullName = prefs.getString('displayName');
+
+    // Extrae solo la primera palabra del nombre
+    setState(() {
+      displayName = fullName != null
+          ? fullName.split(' ').first 
+          : ''; 
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false, 
         title: Padding(
           padding: const EdgeInsets.only(
               top: 20.0), // Padding solo en la parte superior
           child: Text(
-            'Hola Cris,',
-            style: TextStyle(color: Colors.white, fontSize: 32),
+            'Hola $displayName,',
+            style: AppTextStyles.headline1,
           ),
         ),
-        backgroundColor: Color.fromARGB(255, 41, 27, 73),
+        backgroundColor: AppColors.primaryColor,
         elevation: 0,
       ),
-      backgroundColor: Color.fromARGB(255, 41, 27, 73),
+      backgroundColor: AppColors.primaryColor,
       body: Padding(
         padding:
             const EdgeInsets.only(top: 12, bottom: 16.0, left: 16, right: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              '¿Cómo te sientes hoy?',
-              style: TextStyle(
-                  fontSize: 20,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold),
-            ),
+            const Text('¿Cómo te sientes hoy?', style: AppTextStyles.headline2),
             const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -207,14 +226,7 @@ class _HomeViewState extends State<HomeView> {
             const Padding(
               padding:
                   EdgeInsets.only(bottom: 16.0, left: 8), // Espacio inferior
-              child: Text(
-                'Recomendación',
-                style: TextStyle(
-                  fontSize: 24, // Tamaño del texto del título
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white, // Negrita para el título
-                ),
-              ),
+              child: Text('Recomendación', style: AppTextStyles.headline2),
             ),
             _buildRecommendationCard(
               imagePath: 'assets/relajación.png',
@@ -255,7 +267,7 @@ class _HomeViewState extends State<HomeView> {
     required VoidCallback onPressed,
   }) {
     return Card(
-      color: Color.fromARGB(255, 208, 191, 248),
+      color: AppColors.secondaryColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20.0),
       ),
@@ -295,40 +307,22 @@ class _HomeViewState extends State<HomeView> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Subtítulo pequeño arriba del título grande
-                  Text(
-                    subtitle,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w100, // Tamaño de fuente pequeño
-                      color: Color.fromRGBO(37, 17, 82, 1), // Color más claro
-                    ),
-                  ),
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 32, // Tamaño de fuente grande
-                      fontWeight: FontWeight.bold,
-                      color: Color.fromRGBO(37, 17, 82, 1), // Color más oscuro
-                    ),
-                  ),
+                  Text(subtitle,
+                      style: AppTextStyles.recommendationsCardTitleSpan),
+                  Text(title, style: AppTextStyles.recommendationsCardTitle),
                   const SizedBox(height: 4.0),
                   // Botón
                   ElevatedButton(
                     onPressed: onPressed,
                     style: ElevatedButton.styleFrom(
                       backgroundColor:
-                          Color.fromARGB(255, 104, 48, 233), // Color del botón
+                          AppColors.tercearyColor, // Color del botón
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      minimumSize: Size(80, 30),
+                      minimumSize: const Size(80, 30),
                     ),
-                    child: Text(
-                      buttonText,
-                      style: const TextStyle(
-                        fontSize: 18, // Tamaño de la fuente del texto
-                      ),
-                    ),
+                    child: Text(buttonText, style: AppTextStyles.headline2),
                   ),
                 ],
               ),
@@ -350,9 +344,15 @@ class _HomeViewState extends State<HomeView> {
               isVisible: true, textStyle: TextStyle(fontSize: 10.0)),
           dataSource: <ChartSampleData>[
             ChartSampleData(
-                x: '89 ppm', y: 12, text: '80%', pointColor: Color(0xFF4D24AF)),
+                x: '89 ppm',
+                y: 12,
+                text: '80%',
+                pointColor: AppColors.bpmBiometricCardColor),
             ChartSampleData(
-                x: '95%', y: 10, text: '60%', pointColor: Color(0xFF00A991))
+                x: '95%',
+                y: 10,
+                text: '60%',
+                pointColor: AppColors.spo2BiometricCardColor)
           ],
           cornerStyle: CornerStyle.bothCurve,
           gap: '20%',
@@ -384,10 +384,10 @@ class _HomeViewState extends State<HomeView> {
                 label: "Bajo",
                 startValue: 0,
                 endValue: 33.33,
-                color: const Color.fromARGB(255, 87, 213, 91),
+                color: AppColors.lowAnxietyColor,
                 startWidth: 20,
                 endWidth: 20,
-                labelStyle: GaugeTextStyle(
+                labelStyle: const GaugeTextStyle(
                   color: Colors.white,
                   fontSize: 12,
                   fontFamily: 'Arial',
@@ -398,10 +398,10 @@ class _HomeViewState extends State<HomeView> {
                 label: "Medio",
                 startValue: 33.33,
                 endValue: 66.66,
-                color: const Color.fromARGB(255, 248, 235, 117),
+                color: AppColors.midAnxietyColor,
                 startWidth: 20,
                 endWidth: 20,
-                labelStyle: GaugeTextStyle(
+                labelStyle: const GaugeTextStyle(
                   color: Colors.black,
                   fontSize: 12,
                   fontFamily: 'Arial',
@@ -412,10 +412,10 @@ class _HomeViewState extends State<HomeView> {
                 label: "Alto",
                 startValue: 66.66,
                 endValue: 100,
-                color: const Color.fromARGB(255, 248, 101, 91),
+                color: AppColors.highAnxietyColor,
                 startWidth: 20,
                 endWidth: 20,
-                labelStyle: GaugeTextStyle(
+                labelStyle: const GaugeTextStyle(
                   color: Colors.white,
                   fontSize: 12,
                   fontFamily: 'Arial',
@@ -425,13 +425,13 @@ class _HomeViewState extends State<HomeView> {
             ],
             pointers: const <GaugePointer>[
               NeedlePointer(
-                value: 60, // Cambia este valor para probar diferentes niveles
-                needleColor: Color(0xFF4D24AF),
+                value: 60,
+                needleColor: AppColors.primaryColor,
                 knobStyle: KnobStyle(
-                  color: Color(0xFF4D24AF),
+                  color: AppColors.primaryColor,
                 ),
-                needleStartWidth: 0, // Ancho de inicio del puntero
-                needleEndWidth: 2, // Ancho del extremo del puntero
+                needleStartWidth: 0,
+                needleEndWidth: 2,
               ),
             ],
             annotations: <GaugeAnnotation>[
@@ -440,9 +440,9 @@ class _HomeViewState extends State<HomeView> {
                   child: const Text(
                     '',
                     style: TextStyle(
-                      fontSize: 16, // Ajusta el tamaño de la anotación
+                      fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF4D24AF),
+                      color: AppColors.primaryColor,
                     ),
                   ),
                 ),
@@ -457,35 +457,6 @@ class _HomeViewState extends State<HomeView> {
   }
 
   // Función que construye la leyenda para el gráfico
-  Widget _buildLegend() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        _buildLegendItem(Colors.red, 'Muy alto (80%)'),
-        const SizedBox(width: 15),
-        _buildLegendItem(Colors.orange, 'Alto (60%)'),
-      ],
-    );
-  }
-
-  // Función que crea un ítem de leyenda
-  Widget _buildLegendItem(Color color, String text) {
-    return Row(
-      children: [
-        Container(
-          width: 16,
-          height: 16,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
-        ),
-        const SizedBox(width: 5),
-        Text(text),
-      ],
-    );
-  }
-
   Widget _buildCard({required String title, required Widget content}) {
     return Card(
       elevation: 8,
@@ -498,7 +469,7 @@ class _HomeViewState extends State<HomeView> {
           borderRadius: BorderRadius.circular(
               30), // Mismo borde redondeado que la tarjeta
           border: Border.all(
-            color: Color.fromRGBO(208, 191, 248, 1), // Color del borde
+            color: AppColors.secondaryColor, // Color del borde
             width: 1.0, // Grosor del borde
           ),
         ),
@@ -510,14 +481,7 @@ class _HomeViewState extends State<HomeView> {
               CrossAxisAlignment.center, // Alinea todo a la izquierda
           children: [
             // Texto principal
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Color.fromARGB(255, 41, 27, 73),
-              ),
-            ),
+            Text(title, style: AppTextStyles.biometricCardHeadline),
             // Contenido dinámico
             content,
             // Solo mostrar si el título es 'Datos Biométricos'
@@ -531,18 +495,18 @@ class _HomeViewState extends State<HomeView> {
                             width: 10,
                             height: 10,
                             decoration: BoxDecoration(
-                              color: Color(
-                                  0xFF4D24AF), // Color de fondo del cuadrado
+                              color: AppColors
+                                  .bpmBiometricCardColor, // Color de fondo del cuadrado
                               borderRadius: BorderRadius.circular(
                                   2), // Bordes redondeados
                             ),
                           ),
                           const SizedBox(
                               width: 8), // Espacio entre el cuadrado y el texto
-                          const Text(
-                            'Ritmo Cardiaco',
-                            style: TextStyle(fontSize: 14), // Tamaño del texto
-                          ),
+                          const Text('Ritmo Cardiaco',
+                              style: AppTextStyles
+                                  .biometricCardBodyText1 // Tamaño del texto
+                              ),
                         ],
                       ),
                       const SizedBox(
@@ -554,32 +518,26 @@ class _HomeViewState extends State<HomeView> {
                             width: 10,
                             height: 10,
                             decoration: BoxDecoration(
-                              color: Color(
-                                  0xFF00A991), // Color de fondo del cuadrado
+                              color: AppColors
+                                  .spo2BiometricCardColor, // Color de fondo del cuadrado
                               borderRadius: BorderRadius.circular(
                                   2), // Bordes redondeados
                             ),
                           ),
                           const SizedBox(
                               width: 8), // Espacio entre el cuadrado y el texto
-                          const Text(
-                            'Oxigenación',
-                            style: TextStyle(fontSize: 14), // Tamaño del texto
-                          ),
+                          const Text('Oxigenación',
+                              style: AppTextStyles
+                                  .biometricCardBodyText1 // Tamaño del texto
+                              ),
                         ],
                       ),
                     ],
                   )
                 : Column(
                     children: const [
-                      Text(
-                        '80 puntos',
-                        style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Color.fromRGBO(37, 17, 82, 1)),
-                        textAlign: TextAlign.center, // Centra el texto
-                      ),
+                      Text('80 puntos',
+                          style: AppTextStyles.biometricCardBodyText1),
                     ],
                   ),
           ],
@@ -588,8 +546,9 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
- Widget _buildEmotionColumn(String assetPath, String emotion) {
-    bool isSelected = _selectedEmotion == emotion; // Verifica si es la emoción seleccionada
+  Widget _buildEmotionColumn(String assetPath, String emotion) {
+    bool isSelected =
+        _selectedEmotion == emotion; // Verifica si es la emoción seleccionada
     return GestureDetector(
       onTap: () {
         _showEmotionDialog(context, emotion, assetPath); // Muestra el diálogo
@@ -602,7 +561,8 @@ class _HomeViewState extends State<HomeView> {
               shape: BoxShape.circle,
               border: isSelected
                   ? Border.all(
-                      color: const Color(0xFF9575CD), // Color del borde si está seleccionado
+                      color: AppColors
+                          .tercearyColor, // Color del borde si está seleccionado
                       width: 3,
                     )
                   : null, // Sin borde si no está seleccionado
@@ -614,49 +574,40 @@ class _HomeViewState extends State<HomeView> {
             ),
           ),
           const SizedBox(height: 5),
-          Text(
-            emotion,
-            style: const TextStyle(
-              color: Colors.white, // Color del texto
-            ),
-          ),
+          Text(emotion, style: AppTextStyles.bodyText2),
         ],
       ),
     );
   }
 
-  void _showEmotionDialog(BuildContext context, String emotion, String assetPath) {
+  void _showEmotionDialog(
+      BuildContext context, String emotion, String assetPath) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(25.0)),
       ),
-      backgroundColor: const Color.fromARGB(255, 41, 27, 73), // Color de fondo
+      backgroundColor: AppColors.dialogBackgroundColor, // Color de fondo
       builder: (BuildContext context) {
         return Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
-            mainAxisSize: MainAxisSize.min, // Hace que el dialog se ajuste al contenido
+            mainAxisSize:
+                MainAxisSize.min, // Hace que el dialog se ajuste al contenido
             children: [
               // Contenedor superior tipo píldora
               Container(
                 width: 60, // Ancho de la píldora
                 height: 8, // Altura de la píldora
-                margin: const EdgeInsets.only(top: 1, bottom: 16), // Espaciado superior e inferior
+                margin: const EdgeInsets.only(
+                    top: 1, bottom: 16), // Espaciado superior e inferior
                 decoration: BoxDecoration(
-                  color: const Color(0xFF9575CD), // Morado claro
+                  color: AppColors.tercearyColor, // Morado claro
                   borderRadius: BorderRadius.circular(30), // Forma redondeada
                 ),
               ),
               // Texto del diálogo
-              Text(
-                'Se siente $emotion',
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white, // Color del texto en blanco
-                ),
-              ),
+              Text('Se siente $emotion', style: AppTextStyles.dialogHeadline1),
               const SizedBox(height: 20),
               // Imagen de la emoción
               Image.asset(
@@ -673,18 +624,20 @@ class _HomeViewState extends State<HomeView> {
                   ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        _selectedEmotion = emotion; // Establece la emoción seleccionada
+                        _selectedEmotion =
+                            emotion; // Establece la emoción seleccionada
                       });
                       Navigator.pop(context); // Cierra el diálogo
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 41, 27, 73), // Fondo
+                      backgroundColor: AppColors.dialogBackgroundColor, // Fondo
                       side: const BorderSide(
-                        color: Color(0xFF9575CD), // Bordes morado claro
+                        color: AppColors.tercearyColor, // Bordes morado claro
                         width: 2,
                       ),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30), // Forma de píldora
+                        borderRadius:
+                            BorderRadius.circular(30), // Forma de píldora
                       ),
                       padding: const EdgeInsets.symmetric(
                         vertical: 15, // Altura del botón
@@ -693,7 +646,7 @@ class _HomeViewState extends State<HomeView> {
                     ),
                     child: const Text(
                       'Confirmar',
-                      style: TextStyle(color: Color(0xFF9575CD), fontSize: 18), // Texto en blanco
+                      style: AppTextStyles.dialogButton, // Texto en blanco
                     ),
                   ),
                   ElevatedButton(
@@ -701,13 +654,14 @@ class _HomeViewState extends State<HomeView> {
                       Navigator.pop(context); // Cierra el diálogo
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 41, 27, 73), // Fondo
+                      backgroundColor: AppColors.dialogBackgroundColor, // Fondo
                       side: const BorderSide(
-                        color: Color(0xFF9575CD), // Bordes morado claro
+                        color: AppColors.tercearyColor, // Bordes morado claro
                         width: 2,
                       ),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30), // Forma de píldora
+                        borderRadius:
+                            BorderRadius.circular(30), // Forma de píldora
                       ),
                       padding: const EdgeInsets.symmetric(
                         vertical: 15, // Altura del botón
@@ -716,7 +670,7 @@ class _HomeViewState extends State<HomeView> {
                     ),
                     child: const Text(
                       'Cancelar',
-                      style: TextStyle(color: Color(0xFF9575CD), fontSize: 18), // Texto en blanco
+                      style: AppTextStyles.dialogButton, // Texto en blanco
                     ),
                   ),
                 ],
@@ -727,7 +681,4 @@ class _HomeViewState extends State<HomeView> {
       },
     );
   }
-  
-
-  
 }

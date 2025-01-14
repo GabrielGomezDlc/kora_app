@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string name="app_name">Kora</string>
+    <string name="facebook_app_id">1283309912718806</string>
+    <string name="fb_login_protocol_scheme">fb1283309912718806</string>
+    <string name="facebook_client_token">db3ca37429d9eb93570bfea32be42b65</string>
+
+
+</resources>

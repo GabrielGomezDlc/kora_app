@@ -48,14 +48,16 @@ dependencies:
   flutter_appauth: ^7.0.1
   flutter_web_auth: ^0.5.0
   aad_oauth: ^1.0.1
-  health: ^11.0.0
+  health: ^11.1.1
   permission_handler: ^11.3.1
   provider: ^6.1.2
   shared_preferences: ^2.3.2
   path_provider: ^2.1.5
   dio: ^5.7.0
   fl_chart: ^0.69.0
-  
+  jose: ^0.3.4
+  flutter_facebook_auth: ^7.1.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -108,6 +110,15 @@ flutter:
     - assets/gear.png   
     - assets/brain.png  
     - assets/microsoft_morado.svg 
+    - assets/microsoft_blanco.svg 
+    - assets/health_connect_logo.png
+    - assets/s_health.png
+    - assets/paso2.png
+    - assets/paso3.png
+    - assets/paso4.png
+    - assets/paso5.png
+    - assets/ok2.png
+  
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

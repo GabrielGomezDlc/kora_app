@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:kora_app/ui/questionary/stai.dart';
+import 'package:kora_app/styles/colors.dart';
+import 'package:kora_app/styles/texts.dart';
 
 class Instructions extends StatefulWidget {
   const Instructions({super.key});
@@ -50,7 +52,7 @@ class _InstructionsState extends State<Instructions> with SingleTickerProviderSt
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF4D24AF),
+      backgroundColor: AppColors.primaryColor,
       body: SlideTransition(
         position: _animation,
         child: Center(
@@ -58,25 +60,18 @@ class _InstructionsState extends State<Instructions> with SingleTickerProviderSt
             padding: const EdgeInsets.all(16.0),
             child: RichText(
               textAlign: TextAlign.justify,
-              text: TextSpan(
+              text: const TextSpan(
                 children: [
                   TextSpan(
                     text: "Instrucciones:\n\n",
-                    style: TextStyle(
-                      fontSize: 26.0, // Tamaño más grande para "Instrucciones"
-                      color: Colors.white, // Color morado
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: AppTextStyles.headline2
                   ),
                   TextSpan(
                     text:
                         "A continuación se le proporcionará unas frases que se utilizan comúnmente para describirse uno a sí mismo. "
                         "Lea cada frase y señale la puntuación de 0 a 3 que indique mejor cómo se siente usted ahora mismo, en este momento. "
                         "No hay respuestas buenas ni malas. No emplee demasiado tiempo en cada frase y conteste señalando la respuesta que mejor describa su situación presente.",
-                    style: TextStyle(
-                      fontSize: 20.0, // Tamaño del texto general
-                      color: Colors.white, // Mismo color morado
-                    ),
+                    style: AppTextStyles.bodyText1
                   ),
                 ],
               ),

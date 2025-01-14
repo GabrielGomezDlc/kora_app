@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:kora_app/styles/colors.dart';
+import 'package:kora_app/styles/texts.dart';
 import 'package:kora_app/ui/personalized_techniques/musictherapy.dart';
 import 'package:kora_app/ui/relax_recommendations/creating_reco.dart';
 
@@ -55,19 +57,20 @@ class _StaiState extends State<Stai> {
   // Pasar a las siguientes 2 preguntas
   void nextQuestions() {
     setState(() {
-    if (currentQuestionIndex + 2 >= totalQuestions) {
-      // Si estamos al final del cuestionario, ir a otra vista
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const CustomLoadingScreen(), // Reemplaza por tu vista final
-        ),
-      );
-    } else {
-      // Si aún quedan preguntas, avanza
-      currentQuestionIndex += 2;
-    }
-  });
+      if (currentQuestionIndex + 2 >= totalQuestions) {
+        // Si estamos al final del cuestionario, ir a otra vista
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                const CustomLoadingScreen(), // Reemplaza por tu vista final
+          ),
+        );
+      } else {
+        // Si aún quedan preguntas, avanza
+        currentQuestionIndex += 2;
+      }
+    });
   }
 
   // Progreso basado en las preguntas respondidas
@@ -79,22 +82,21 @@ class _StaiState extends State<Stai> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back,
-              color: Color(0xFF4D24AF)), // Ícono de flecha hacia atrás
+              color: Colors.white), // Ícono de flecha hacia atrás
           onPressed: () {
             Navigator.pop(context); // Regresar a la pantalla anterior
           },
         ),
-        title: const Center(
-          child: Text(
-            'Cuestionario STAI',
-            style: TextStyle(color: Color(0xFF4D24AF)),
-          ),
+        title: const Text(
+          'Cuestionario STAI',
+          style: AppTextStyles.headline2,
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.primaryColor,
         elevation: 0,
       ),
-      backgroundColor: Colors.white,
-      body: SingleChildScrollView( // Agregar SingleChildScrollView aquí
+      backgroundColor: AppColors.primaryColor,
+      body: SingleChildScrollView(
+        // Agregar SingleChildScrollView aquí
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -123,17 +125,21 @@ class _StaiState extends State<Stai> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  LinearProgressIndicator(
-                    value: progress,
-                    backgroundColor: Colors.grey[300],
-                    color: const Color(0xFF6730E9),
+                  ClipRRect(
+                    borderRadius:
+                        BorderRadius.circular(10), // Esquinas redondeadas
+                    child: LinearProgressIndicator(
+                        value: progress, // Progreso de ejemplo
+                        backgroundColor: Colors.grey[300],
+                        color: const Color(0xFF6730E9)),
                   ),
                 ],
               ),
               const SizedBox(height: 8),
 
               // Preguntas
-              if (questions.isNotEmpty) // Solo muestra las preguntas si están cargadas
+              if (questions
+                  .isNotEmpty) // Solo muestra las preguntas si están cargadas
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: List.generate(2, (index) {
@@ -144,11 +150,8 @@ class _StaiState extends State<Stai> {
                         children: [
                           Padding(
                             padding: const EdgeInsets.only(top: 6, bottom: 8.0),
-                            child: Text(
-                              questions[questionIndex]['question'],
-                              style: const TextStyle(
-                                  fontSize: 22, color: Color(0xFF4D24AF)),
-                            ),
+                            child: Text(questions[questionIndex]['question'],
+                                style: AppTextStyles.headline2),
                           ),
                           // Contenedor para las opciones con borde
                           Container(
@@ -178,8 +181,7 @@ class _StaiState extends State<Stai> {
                                         activeColor: const Color(0xFF00A991),
                                         onChanged: (int? value) {
                                           if (value != null) {
-                                            updateSelectedOption(
-                                                questionIndex,
+                                            updateSelectedOption(questionIndex,
                                                 value); // Actualiza la opción seleccionada
                                           }
                                         },
@@ -189,19 +191,20 @@ class _StaiState extends State<Stai> {
                                     Text(
                                         questions[questionIndex]['options']
                                             [optionIndex],
-                                        style: TextStyle(
-                                            color: const Color(0xFF4D24AF))),
+                                        style: AppTextStyles.bodyText1),
                                   ],
                                 );
                               }),
                             ),
                           ),
                           const SizedBox(
-                              height: 20), // Aumentar la distancia entre preguntas
+                              height:
+                                  20), // Aumentar la distancia entre preguntas
                         ],
                       );
                     } else {
-                      return const SizedBox.shrink(); // No mostrar nada si no hay más preguntas
+                      return const SizedBox
+                          .shrink(); // No mostrar nada si no hay más preguntas
                     }
                   }),
                 ),
@@ -210,26 +213,28 @@ class _StaiState extends State<Stai> {
 
               // Botón para enviar respuesta alineado a la derecha
               Align(
-                alignment: Alignment.centerRight, // Alinear a la derecha
-                child: ElevatedButton(
-                  // Verificar que ambas preguntas tengan respuestas seleccionadas
-                  onPressed: selectedOptions
-                          .sublist(currentQuestionIndex, currentQuestionIndex + 2)
-                          .every((option) => option != null)
-                      ? nextQuestions
-                      : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: selectedOptions
+                  alignment: Alignment.centerRight, // Alinear a la derecha
+                  child: ElevatedButton(
+                    // Verificar que ambas preguntas tengan respuestas seleccionadas
+                    onPressed: selectedOptions
                             .sublist(
                                 currentQuestionIndex, currentQuestionIndex + 2)
                             .every((option) => option != null)
-                        ? const Color(
-                            0xFF4D24AF) // Color del botón cuando está activo
-                        : Colors.grey, // Color gris cuando está inactivo
-                  ),
-                  child: const Text('Siguiente'),
-                ),
-              )
+                        ? nextQuestions
+                        : null,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: selectedOptions
+                              .sublist(currentQuestionIndex,
+                                  currentQuestionIndex + 2)
+                              .every((option) => option != null)
+                          ? Colors.white // Color del botón cuando está activo
+                          : Colors.grey, // Color gris cuando está inactivo
+                    ),
+                    child: const Text(
+                      'Siguiente',
+                      style: TextStyle(color: AppColors.primaryColor),
+                    ),
+                  ))
             ],
           ),
         ),

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:kora_app/ui/home/home.dart';
+import 'package:kora_app/styles/colors.dart';
+import 'package:kora_app/styles/texts.dart';
 
 class Mindfulness extends StatefulWidget {
   const Mindfulness({super.key});
@@ -60,7 +62,7 @@ class _MindfulnessState extends State<Mindfulness> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF4D24AF)),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
             Navigator.pushReplacement(
               context,
@@ -68,16 +70,14 @@ class _MindfulnessState extends State<Mindfulness> {
             );
           },
         ),
-        title: const Center(
-          child: Text(
-            'Mindfulness',
-            style: TextStyle(color: Color(0xFF4D24AF)),
-          ),
+        title: Text(
+          'Mindfulness',
+          style: AppTextStyles.headline2,
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.primaryColor,
         elevation: 0,
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.primaryColor,
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -94,7 +94,7 @@ class _MindfulnessState extends State<Mindfulness> {
               child: Text(
                 'Sigue los pasos de estas meditaciones guiadas para aliviar tu mente',
                 style: TextStyle(
-                  color: Colors.black,
+                  color: Colors.white,
                   fontWeight: FontWeight.normal,
                   fontSize: 18,
                 ),

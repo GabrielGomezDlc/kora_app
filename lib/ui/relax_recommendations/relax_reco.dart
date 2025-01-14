@@ -162,7 +162,7 @@ Future<void> fetchData() async {
 
 
   void getPrediccion() async {
-    final httpHelper = HttpHelper();
+    final mlhelper = MLHelper();
 
     // Crear una instancia de BiometricData con los valores
     final biometricData = BiometricData(
@@ -170,7 +170,7 @@ Future<void> fetchData() async {
 
     try {
       // Realizar la predicción
-      final prediction = await httpHelper.getPrediction(biometricData);
+      final prediction = await mlhelper.getPrediction(biometricData);
       this.recommendedTechniqueId = prediction.recommendedTechniqueId;
       print('Técnica recomendada ID: ${prediction.recommendedTechniqueId}');
     } catch (e) {

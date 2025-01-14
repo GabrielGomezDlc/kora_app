@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:kora_app/styles/colors.dart';
+import 'package:kora_app/styles/texts.dart';
 import 'package:kora_app/ui/personalized_techniques/breathing_exercises.dart';
 import 'package:kora_app/ui/personalized_techniques/mindfulness.dart';
 import 'package:kora_app/ui/personalized_techniques/musictherapy.dart';
@@ -9,7 +11,7 @@ class TechniquesSelection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.primaryColor,
       body: Center(
         // Cambiado a Center para centrar el contenido
         child: SingleChildScrollView(
@@ -21,11 +23,7 @@ class TechniquesSelection extends StatelessWidget {
               // Título
               Text(
                 'Hemos seleccionado las siguientes técnicas para ti',
-                style: TextStyle(
-                  fontSize: 36,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF4D24AF), // Color morado
-                ),
+                style: AppTextStyles.headline1
               ),
               SizedBox(height: 40), // Espacio entre el título y la lista
 

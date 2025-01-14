@@ -107,7 +107,7 @@ class _RelaxationSessionViewState extends State<RelaxationSessionView>
   }
 
   void getPrediccion() async {
-    final httpHelper = HttpHelper();
+    final mlhelper = MLHelper();
 
     // Crear una instancia de BiometricData con los valores
     final biometricData = BiometricData(
@@ -115,7 +115,7 @@ class _RelaxationSessionViewState extends State<RelaxationSessionView>
 
     try {
       // Realizar la predicción
-      final prediction = await httpHelper.getPrediction(biometricData);
+      final prediction = await mlhelper.getPrediction(biometricData);
       this.recommendedTechniqueId = prediction.recommendedTechniqueId;
       print('Técnica recomendada ID: ${prediction.recommendedTechniqueId}');
     } catch (e) {

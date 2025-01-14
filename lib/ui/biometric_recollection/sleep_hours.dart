@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kora_app/ui/questionary/instructions.dart';
 import 'package:kora_app/ui/relax_recommendations/relax_reco.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
@@ -192,7 +193,7 @@ class _SleepTrackingViewState extends State<SleepTrackingView> {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => RelaxationSessionView()),
+                      builder: (context) => Instructions()),
                 );
               },
               style: ElevatedButton.styleFrom(

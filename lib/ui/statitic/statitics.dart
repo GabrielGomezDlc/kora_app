@@ -1,12 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-
-class AppColors {
-  static const Color primary = Color(0xFF4D24AF);
-  static const Color contentColorGreen = Colors.green;
-  static const Color contentColorPink = Colors.pink;
-  static const Color contentColorCyan = Colors.cyan;
-}
+import 'package:kora_app/styles/colors.dart';
+import 'package:kora_app/styles/texts.dart';
 
 class Statitics extends StatefulWidget {
   const Statitics({super.key});
@@ -21,16 +16,19 @@ class _StatiticsState extends State<Statitics> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Center(
+        automaticallyImplyLeading: false,
+        title: const Padding(
+          padding:
+              EdgeInsets.only(top: 20.0), // Padding solo en la parte superior
           child: Text(
             'Estadísticas',
-            style: TextStyle(color: Color(0xFF4D24AF)),
+            style: AppTextStyles.headline1,
           ),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.primaryColor,
         elevation: 0,
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.primaryColor,
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(

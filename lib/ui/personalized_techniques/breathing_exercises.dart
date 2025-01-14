@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kora_app/ui/home/home.dart';
+import 'package:kora_app/styles/colors.dart';
+import 'package:kora_app/styles/texts.dart';
 
 class BreathingExercises extends StatefulWidget {
   const BreathingExercises({super.key});
@@ -15,7 +17,7 @@ class _BreathingExercisesState extends State<BreathingExercises> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back,
-              color: Color(0xFF4D24AF)), // Ícono de flecha hacia atrás
+              color: Colors.white), // Ícono de flecha hacia atrás
           onPressed: () {
             Navigator.pushReplacement(
               context,
@@ -23,16 +25,14 @@ class _BreathingExercisesState extends State<BreathingExercises> {
             ); // Regresar a la pantalla anterior
           },
         ),
-        title: const Center(
-          child: Text(
-            'Ejercicios de Respiración',
-            style: TextStyle(color: Color(0xFF4D24AF)),
-          ),
+        title: Text(
+          'Ejercicios de Respiración',
+          style: AppTextStyles.headline2,
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.primaryColor,
         elevation: 0,
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.primaryColor,
       body: Padding(
         padding:
             const EdgeInsets.all(16.0), // Espaciado alrededor del contenido
@@ -45,7 +45,7 @@ class _BreathingExercisesState extends State<BreathingExercises> {
               style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF4D24AF)), // Estilo del texto
+                  color: Colors.white), // Estilo del texto
             ),
             const SizedBox(
                 height: 20), // Espacio entre el título y las instrucciones
@@ -103,7 +103,7 @@ class _BreathingExercisesState extends State<BreathingExercises> {
           Expanded(
             child: Text(
               text,
-              style: const TextStyle(fontSize: 16), // Estilo del texto
+              style:AppTextStyles.bodyText1 // Estilo del texto
             ),
           ),
         ],
